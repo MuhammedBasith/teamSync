@@ -1,0 +1,222 @@
+---
+alwaysApply: true
+description: Shared code style and architecture standards for TeamSync project
+---
+
+# 🧭 Code Standards — Next.js (App Router) + TypeScript
+
+This document defines the coding conventions and project structure rules for our Next.js + TypeScript application.  
+Our goal is to maintain **clarity**, **consistency**, and **scalability** across both frontend and backend code.
+
+---
+
+## ⚙️ General Principles
+
+- **Use TypeScript strictly.**  
+  - Never use `any`.  
+  - Use proper types and interfaces — prefer `type` for simple objects and `interface` for complex structures or public APIs.
+  - Use `unknown` instead of `any` if typing is uncertain.
+
+- **Keep components clean and focused.**  
+  - No heavy business logic in React components.
+  - Create custom hooks (`useSomething.ts`) for any reusable or data-related logic.
+
+- **Prefer composition over complexity.**  
+  - Avoid deeply nested conditionals or large files.
+  - Extract utility functions and keep files concise and readable.
+
+- **Follow functional purity.**  
+  - Keep side effects contained (hooks, API routes).
+  - Avoid shared mutable state.
+
+---
+
+## 📁 Folder & File Structure
+
+### App Router Structure
+```
+
+src/
+├── app/
+│   ├── (routes)/
+│   │   ├── page.tsx
+│   │   ├── layout.tsx
+│   ├── api/
+│   │   ├── users/
+│   │   │   ├── route.ts
+│   ├── globals.css
+│   └── layout.tsx
+│
+├── components/
+│   ├── ui/
+│   ├── layout/
+│   ├── forms/
+│   └── ...
+│
+├── hooks/
+│   ├── useAuth.ts
+│   ├── useFetch.ts
+│   └── ...
+│
+├── lib/
+│   ├── db/
+│   │   ├── prisma.ts
+│   ├── utils/
+│   │   ├── formatDate.ts
+│   │   ├── logger.ts
+│   └── constants/
+│       ├── api.ts
+│       ├── routes.ts
+│
+├── types/
+│   ├── api.d.ts
+│   ├── user.d.ts
+│   └── ...
+│
+└── services/
+├── userService.ts
+├── authService.ts
+└── ...
+
+````
+
+### Rules:
+- **`components/`** — purely presentational logic, no API or business logic.
+- **`hooks/`** — one hook per feature/component if needed; encapsulate all async/data logic.
+- **`lib/`** — shared helpers, utils, and constants.
+- **`services/`** — backend-facing logic (e.g., database queries, 3rd-party integrations).
+- **`types/`** — global or shared TypeScript definitions.
+- **`app/api/`** — Next.js server routes. Should call `services/` and return standardized responses.
+
+---
+
+## 🧩 Component Rules
+
+- Each component must be **functionally pure** and **typed**.
+- File naming: `ComponentName.tsx`
+- Props interface should be defined at the top:
+  ```ts
+  interface ButtonProps {
+    label: string;
+    onClick?: () => void;
+  }
+
+  export function Button({ label, onClick }: ButtonProps) {
+    return <button onClick={onClick}>{label}</button>;
+  }
+````
+
+* Avoid inline styling; use CSS Modules, Tailwind, or styled components.
+* Each component should have **its own folder** if it has subcomponents or related hooks/styles:
+
+  ```
+  components/
+  └── Button/
+      ├── Button.tsx
+      ├── useButton.ts
+      └── index.ts
+  ```
+
+---
+
+## 🪝 Custom Hook Standards
+
+* Naming: Always start with `use`.
+* Purpose: Encapsulate data fetching, form logic, or reusable state logic.
+* Use Tanstack query to deal anything with data, we can create functions for that in services folders
+* Keep hooks **stateless** — no side effects beyond what React allows.
+* Example:
+
+  ```ts
+  import { useState, useEffect } from "react";
+
+  export function useUsers() {
+    const [users, setUsers] = useState<User[]>([]);
+
+    useEffect(() => {
+      fetch("/api/users")
+        .then((res) => res.json())
+        .then(setUsers);
+    }, []);
+
+    return { users };
+  }
+  ```
+
+---
+
+## 🔐 Backend (API) Standards
+
+* All backend logic lives under `app/api/` and `services/`.
+
+* Keep API routes minimal — only handle request/response, validation, and call `services`.
+
+* Example:
+
+  ```ts
+  // app/api/users/route.ts
+  import { NextResponse } from "next/server";
+  import { getAllUsers } from "@/services/userService";
+
+  export async function GET() {
+    const users = await getAllUsers();
+    return NextResponse.json(users);
+  }
+  ```
+
+* Example service:
+
+  ```ts
+  // services/userService.ts
+  import prisma from "@/lib/db/prisma";
+
+  export async function getAllUsers() {
+    return prisma.user.findMany();
+  }
+  ```
+
+* Validation should be done via **Zod** or **class-validator** before processing.
+
+---
+
+## 🧱 Naming Conventions
+
+| Entity           | Convention                               | Example                  |
+| ---------------- | ---------------------------------------- | ------------------------ |
+| Component        | PascalCase                               | `UserCard.tsx`           |
+| Hook             | camelCase (starts with use)              | `useUserData.ts`         |
+| Utility Function | camelCase                                | `formatDate.ts`          |
+| Type/Interface   | PascalCase with `Type` or `Props` suffix | `UserType`, `LoginProps` |
+| API Route Folder | kebab-case                               | `/api/user-profile/`     |
+
+---
+
+## 🧰 Other Guidelines
+
+* Use **ESLint** and **Prettier** — enforce consistent code style.
+* Always handle errors gracefully (never throw raw errors).
+* Commit messages follow **Conventional Commits** style:
+
+  ```
+  feat(scope): add user profile endpoint
+  fix: resolve login hook bug
+  refactor: clean up form validation
+  ```
+
+---
+
+## ✅ Summary
+
+✔ Strict TypeScript, no `any`
+✔ Clean separation of frontend (components/hooks) and backend (services/api)
+✔ Reusable and testable logic
+✔ Scalable folder structure
+✔ Consistent naming and conventions
+
+---
+
+> “Write code for humans first, machines second.”
+
+```
+
+---
