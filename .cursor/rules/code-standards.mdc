@@ -29,6 +29,10 @@ Our goal is to maintain **clarity**, **consistency**, and **scalability** across
   - Keep side effects contained (hooks, API routes).
   - Avoid shared mutable state.
 
+- **Donot hallucinate or blindly write code.**  
+  - always ask questions first before proceeding if you have any doubts
+  - always refer to product-requirements.mdc and db-schema.mdc if you have any doubts about our goal or db structure dont assume fields or table will exisit always cross verify.
+
 ---
 
 ## 📁 Folder & File Structure
