@@ -9,8 +9,8 @@ export async function middleware(request: NextRequest) {
   });
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY!,
     {
       cookies: {
         get(name: string) {
@@ -61,26 +61,26 @@ export async function middleware(request: NextRequest) {
 
   // Protected routes - require authentication
   const isProtectedRoute =
+    request.nextUrl.pathname === "/" ||
     request.nextUrl.pathname.startsWith("/teams") ||
     request.nextUrl.pathname.startsWith("/members") ||
     request.nextUrl.pathname.startsWith("/organization") ||
-    request.nextUrl.pathname.startsWith("/profile") ||
-    request.nextUrl.pathname === "/";
+    request.nextUrl.pathname.startsWith("/profile");
 
-  // Auth routes - redirect to dashboard if already logged in
+  // Auth routes - redirect to home if already logged in
   const isAuthRoute =
-    request.nextUrl.pathname.startsWith("/login") ||
+    request.nextUrl.pathname.startsWith("/signin") ||
     request.nextUrl.pathname.startsWith("/signup");
 
   if (isProtectedRoute && !user) {
-    // Redirect to login if trying to access protected route without auth
-    const redirectUrl = new URL("/login", request.url);
+    // Redirect to signin if trying to access protected route without auth
+    const redirectUrl = new URL("/signin", request.url);
     redirectUrl.searchParams.set("redirect", request.nextUrl.pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
   if (isAuthRoute && user) {
-    // Redirect to dashboard if already logged in
+    // Redirect to home (dashboard) if already logged in
     return NextResponse.redirect(new URL("/", request.url));
   }
 
