@@ -1,0 +1,199 @@
+---
+alwaysApply: true
+description: Product Requirements Document for TeamSync, outlines core features, roles, and flows
+---
+
+
+## Overview
+
+This project is a **multi-tenant team management platform** built using **Next.js and Supabase**. Each organization can sign up, manage its members, teams, and activity logs within a secure workspace.
+
+---
+
+## Core Objectives
+
+1. Allow organizations to create their own isolated workspaces.
+    
+2. Manage users, teams, and roles within each organization.
+    
+3. Provide basic admin capabilities like activity logs and resource quotas.
+    
+4. Ensure a clean and extensible architecture ready for scaling.
+    
+
+---
+
+## User Roles
+
+### 1. **Organization Owner**
+
+- Created automatically when a user signs up and creates a new organization.
+    
+- Has full control over settings, color palette, members, teams, and quotas.
+    
+- Can invite admins or members via email or CSV upload.
+    
+- Can export audit logs.
+    
+- Cannot belong to multiple organizations in this version.
+    
+
+### 2. **Admin**
+
+- Invited by the owner.
+    
+- Can create and manage teams, invite new members, and view audit logs.
+    
+- Cannot delete the organization or change the color palette.
+    
+
+### 3. **Member**
+
+- Basic access role.
+    
+- Can view assigned teams, but not modify org-level settings.
+    
+
+(I noticed that in the instructions, it was at one point suggested that the activity log should be visible to everyone. Later, it specifically talks about showing it to owners and admins. Considering this, it makes more sense for now to keep all the activities restricted to owners and admins. Showing everything to members could be noisy or reveal things they don’t need to see. So, I’m proceeding in a logical way where the activity feed will only be visible to owners and admins.)
+
+---
+
+## Core Features
+
+### 1. **Organization Management**
+
+- The first user to sign up automatically becomes the **Organization Owner** and creates a new org.
+    
+- Other users can only join via an **invite link or CSV bulk upload**.
+    
+- Each organization has isolated data (multi-tenancy).
+    
+- Organization metadata includes name, owner ID, color palette, and resource quotas.
+    
+
+### 2. **Color Palette Customization**
+
+- During organization creation, the owner can choose a preferred color palette (e.g., primary, accent, background) or we could have a default one.
+    
+- This palette is saved in the org table in Supabase.
+    
+- On each page load, the client fetches this palette (cached client-side or via localStorage) to apply theme dynamically.
+    
+- Edge case: if palette fetch fails, fallback to default theme.
+    
+
+### 3. **User Avatars**
+
+- Profile pictures are auto-generated using the [Avatar Placeholder API](https://avatar-placeholder.iran.liara.run/).
+    
+- Avatars use initials derived from the user's name.
+    
+- Example: `https://avatar-placeholder.iran.liara.run/?name=Basith+A`.
+    
+
+### 4. **Audit Trail and Export**
+
+- All major activities (e.g., member added, role changed, team created) are logged in an `activity_log` table.
+    
+- The admin and owner can:
+    
+    - View logs filtered by date range.
+        
+    - Export logs as **CSV or JSON**.
+        
+- Edge cases:
+    
+    - Large log export should paginate or have a “max 10k records” limit.
+        
+    - Handle empty log gracefully with message: “No activity recorded yet.”
+        
+
+### 5. **Bulk User Import**
+
+- Admins and owners can upload a CSV file to invite multiple users at once.
+    
+- CSV format: `email,role`.
+    
+- System sends invite emails via Supabase’s built-in mailer (mocked if email not configured).
+    
+- Edge cases:
+    
+    - Duplicates or invalid emails skipped with a simple error report.
+        
+    - Role defaults to "member" if not specified.
+        
+
+### 6. **Resource Quotas**
+
+- Each organization has usage limits stored in DB (e.g., `max_members`, `max_teams`).
+    
+- Example tiers:
+    
+    - **Free Tier:** max 5 teams, 25 members each.
+        
+    - **Pro Tier (future):** higher limits (placeholder only).
+        
+- Validation occurs before adding new teams or members.
+    
+- Edge cases:
+    
+    - Proper error message when limits are reached.
+        
+    - Owner can view usage summary (e.g., “23/25 members used”).
+
+> [!NOTE]
+> - **`max_members`**: total number of users in the **organization**, **including Owners and Admins**.
+>     
+>     - Example: Free Tier → `max_members = 25`
+>         
+>     - This means the org can have **up to 25 users total**, distributed across all teams.
+>         
+> - **Teams can have any combination of members**, as long as the **total number of users in the org doesn’t exceed 25**.
+>     
+>     - One team could have 10 members, another team 5, another team 10 → total 25.
+>         
+>     - You don’t need to enforce a separate per-team member limit unless you want to.
+>         
+> - **`max_teams`**: total number of teams allowed in the org.
+>     
+>     - Example: Free Tier → `max_teams = 5`
+>         
+>     - Each team counts toward this limit, no matter its size.
+
+---
+
+## Technical Overview
+
+### Stack
+
+- **Frontend**: Next.js (App Router), TailwindCSS, shadcn/ui.
+    
+- **Auth & DB**: Supabase (RLS enabled).
+    
+- **Caching**: Supabase cache by default; Redis can be integrated later for activity log or quota caching.
+    
+- **File Handling**: CSV upload handled client-side, validated, then inserted via Supabase.
+    
+
+### Multi-Tenancy Enforcement
+
+- Every table (users, teams, logs) includes an `org_id`.
+    
+- RLS (Row-Level Security) ensures users can only access data belonging to their organization.
+    
+- Owner can’t access other orgs or see their data.
+    
+
+---
+
+## Edge Cases Summary
+
+| Case                        | Expected Behavior                                |
+| --------------------------- | ------------------------------------------------ |         |
+| Org color palette missing   | Apply default palette                            |
+| CSV with invalid emails     | Skip those and show errors                       |
+| Log export too large        | Paginate or limit results                        |
+| Quota exceeded              | Show message: “Limit reached, upgrade required.” |
+
+---
+
