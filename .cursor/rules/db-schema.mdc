@@ -1,0 +1,165 @@
+---
+alwaysApply: true
+description: Database schema design for TeamSync, including tables, relationships, and RLS design
+---
+
+
+
+## 1`tiers`
+
+Defines the plan limits (Free / Pro / Enterprise).
+
+|Column|Type|Notes|
+|---|---|---|
+|`id`|`uuid` PK|auto-generated|
+|`name`|`text`|e.g. `"free"`, `"pro"`, `"enterprise"`|
+|`max_members`|`int`|member limit for that tier|
+|`max_teams`|`int`|team limit for that tier|
+|`price_per_month`|`numeric`|0 for free|
+|`created_at`|`timestamp`|default now()|
+
+**Purpose:**  
+Reusable table for pricing & limits.  
+Every organization links to one of these.
+
+---
+
+## 2 `organizations`
+
+Each company/account using the system.
+
+|Column|Type|Notes|
+|---|---|---|
+|`id`|`uuid` PK|auto-generated|
+|`name`|`text`|e.g. “Acme Inc”|
+|`tier_id`|`uuid` FK → `tiers.id`|default: Free tier|
+|`created_at`|`timestamp`|default now()|
+|`owner_id`|`uuid (FK → users.id)`|The creator)|
+|`color_palette`|`jsonb {primary, accent, background}`|color)|
+
+**Purpose:**  
+Holds org-level info and their pricing tier.  
+Each org can have many teams and users.
+
+---
+
+## 3 `users`
+
+Internal table extending Supabase Auth.
+
+| Column            | Type                          | Notes                                          |
+| ----------------- | ----------------------------- | ---------------------------------------------- |
+| `id`              | `uuid` PK, FK → auth.users.id | same UUID as Supabase Auth user                |
+| `organization_id` | `uuid` FK → organizations.id  | nullable, each user belongs to exactly one org |
+| `team_id`         | `uuid` FK → teams.id          | optional (user may belong to one team)         |
+| `role`            | `text`                        | “owner”, “admin”, “member”                     |
+| `display_name`    | `text`                        | profile name                                   |
+| `avatar_url`      | `text`                        | optional                                       |
+| `created_at`      | `timestamp`                   | default now()                                  |
+
+**Purpose:**  
+Connects Supabase Auth user to org and team + adds metadata.
+
+**Note:**  
+UUID is _copied_ from Supabase Auth when user signs up →  
+your backend inserts into this table with the same id.
+Allow `organization_id` to be **nullable** initially. Once that user _creates_ the organization, your backend updates the field.
+
+---
+
+## 4 `teams`
+
+Teams within an organization.
+
+|Column|Type|Notes|
+|---|---|---|
+|`id`|`uuid` PK|auto-generated|
+|`organization_id`|`uuid` FK → organizations.id|team belongs to one org|
+|`name`|`text`|e.g. “Design”, “Backend”|
+|`created_by`|`uuid` FK → users.id|who created this team|
+|`created_at`|`timestamp`|default now()|
+
+**Purpose:**  
+Represents smaller groups under an organization.
+
+---
+
+## 5`activity_log`
+
+Tracks key user actions.
+
+|Column|Type|Notes|
+|---|---|---|
+|`id`|`uuid` PK|auto-generated|
+|`actor_id`|`uuid` FK → users.id|who performed the action|
+|`organization_id`|`uuid` FK → organizations.id|org context|
+|`action_type`|`text`|enum(‘user_invited’, ‘team_created’, ‘role_changed’)|
+|`target_type`|`text`|“user”, “team”, “organization”|
+|`target_id`|`uuid`|ID of thing affected (e.g. user_id or team_id)|
+|`details`|`jsonb`|optional extra info|
+|`created_at`|`timestamp`|default now()|
+
+**Purpose:**  
+Stores logs for the 3 key events.
+
+**Examples:**
+
+- **user_invited**
+    
+    ```json
+    {
+      "email": "new@acme.com",
+      "role": "member"
+    }
+    ```
+    
+- **team_created**
+    
+    ```json
+    {
+      "team_name": "Marketing"
+    }
+    ```
+    
+- **role_changed**
+    
+    ```json
+    {
+      "user_id": "uuid-of-target",
+      "from": "member",
+      "to": "admin"
+    }
+    ```
+    
+
+
+---
+
+6. invites
+
+| Column            | Type        | Notes                                                      |
+| ----------------- | ----------- | ---------------------------------------------------------- |
+| `id`              | `uuid`      | PK, unique token for invite URL                            |
+| `email`           | `text`      | email of the invitee                                       |
+| `organization_id` | `uuid`      | FK → organizations.id                                      |
+| `team_id`         | `uuid`      | FK → teams.id (nullable; optional for future bulk invites) |
+| `role`            | `text`      | “admin” or “member” (owner not allowed)                    |
+| `invited_by`      | `uuid`      | FK → users.id (who sent it)                                |
+| `accepted`        | `boolean`   | default false                                              |
+| `created_at`      | `timestamp` | default now()                                              |
+| `accepted_at`     | `timestamp` | nullable; filled when user accepts                         |
+
+
+---
+
+## 🧩 Summary of relationships
+
+```
+tiers (1) ──< organizations (many)
+organizations (1) ──< users (many)
+organizations (1) ──< teams (many)
+teams (1) ──< users (many)
+users (1) ──< activity_log (many)
+```
+
+---
