@@ -183,7 +183,28 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Create organization
+      // Create user record in users table FIRST (without organization_id initially)
+      // This allows us to reference this user when creating the organization
+      const { error: userError } = await supabase.from("users").insert({
+        id: authData.user.id,
+        organization_id: null, // Will be updated after org creation
+        team_id: null,
+        role: "owner",
+        display_name: displayName,
+        avatar_url: avatarUrl,
+      });
+
+      if (userError) {
+        // Rollback: delete auth user if user record creation fails
+        await supabase.auth.admin.deleteUser(authData.user.id);
+        console.error("User record creation error:", userError);
+        return NextResponse.json(
+          { error: "Failed to create user profile" },
+          { status: 500 }
+        );
+      }
+
+      // Now create organization (can reference user.id as owner_id)
       const { data: orgData, error: orgError } = await supabase
         .from("organizations")
         .insert({
@@ -196,8 +217,9 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (orgError || !orgData) {
-        // Rollback: delete auth user if org creation fails
+        // Rollback: delete auth user and user record if org creation fails
         await supabase.auth.admin.deleteUser(authData.user.id);
+        await supabase.from("users").delete().eq("id", authData.user.id);
         console.error("Organization creation error:", orgError);
         return NextResponse.json(
           { error: "Failed to create organization" },
@@ -205,23 +227,20 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Create user record in users table
-      const { error: userError } = await supabase.from("users").insert({
-        id: authData.user.id,
-        organization_id: orgData.id,
-        team_id: null,
-        role: "owner",
-        display_name: displayName,
-        avatar_url: avatarUrl,
-      });
+      // Update user record with organization_id
+      const { error: updateError } = await supabase
+        .from("users")
+        .update({ organization_id: orgData.id })
+        .eq("id", authData.user.id);
 
-      if (userError) {
-        // Rollback: delete auth user and org if user record creation fails
+      if (updateError) {
+        // Rollback: delete everything if update fails
         await supabase.auth.admin.deleteUser(authData.user.id);
         await supabase.from("organizations").delete().eq("id", orgData.id);
-        console.error("User record creation error:", userError);
+        await supabase.from("users").delete().eq("id", authData.user.id);
+        console.error("User update error:", updateError);
         return NextResponse.json(
-          { error: "Failed to create user profile" },
+          { error: "Failed to link user to organization" },
           { status: 500 }
         );
       }
