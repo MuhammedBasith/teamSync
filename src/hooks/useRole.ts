@@ -1,20 +1,20 @@
 "use client";
 
 import { Role } from "@/types";
+import { useAuth } from "@/context/AuthContext";
 
-// Placeholder hook for role checking
+// Hook for role checking using real auth data
 export function useRole() {
-  // TODO: Implement role checking logic with actual auth
-  // For now, returning 'owner' as default to show all menu items
-  // Change this to 'admin' or 'member' to test different views
-  const role: Role = "owner"; // Temporary mock - will be replaced with actual auth
+  const { user, loading } = useAuth();
+  
+  const role: Role | null = user?.role || null;
 
   return {
     role,
     isOwner: role === "owner",
     isAdmin: role === "admin",
     isMember: role === "member",
-    loading: false,
+    loading,
   };
 }
 
