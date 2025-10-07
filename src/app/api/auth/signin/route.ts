@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch user profile from users table
+    // Specify the relationship to avoid ambiguity (user belongs to one org)
     const { data: userData, error: userError } = await supabase
       .from("users")
       .select(
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
         role,
         display_name,
         avatar_url,
-        organizations (
+        organizations!users_organization_id_fkey (
           id,
           name,
           color_palette
