@@ -1,14 +1,18 @@
 "use client";
 
-// Placeholder hook for organization data
+import { useAuth } from "@/context/AuthContext";
+
+// Hook for organization data using real auth
 export function useOrganization() {
-  // TODO: Implement organization data fetching with Tanstack Query
+  const { user, loading, error } = useAuth();
+
   return {
-    organization: null,
-    loading: true,
-    error: null,
+    organization: user?.organization || null,
+    loading,
+    error,
     updateOrganization: async (data: unknown) => {
       console.log("Update organization:", data);
+      // TODO: Implement organization update API call
     },
   };
 }
