@@ -1,12 +1,15 @@
 "use client";
 
-// Placeholder hook for user data
+import { useAuth } from "@/context/AuthContext";
+
+// Hook for user data using real auth
 export function useUser() {
-  // TODO: Implement user data fetching with Tanstack Query
+  const { user, loading, error } = useAuth();
+
   return {
-    user: null,
-    loading: true,
-    error: null,
+    user,
+    loading,
+    error,
   };
 }
 
