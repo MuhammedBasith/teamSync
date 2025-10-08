@@ -197,7 +197,7 @@ export default function ActivityLogPage() {
         return (
           <>
             <span className="font-semibold">{actorName}</span> changed{" "}
-            <span className="font-semibold">{targetName}</span>'s role from{" "}
+            <span className="font-semibold">{targetName}</span>&apos;s role from{" "}
             <span className="font-semibold">{activity.details?.from}</span> to{" "}
             <span className="font-semibold">{activity.details?.to}</span>
           </>
