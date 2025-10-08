@@ -3,6 +3,7 @@ import { createSupabaseServer } from "@/lib/server/supabase";
 import { createSupabaseAdmin } from "@/lib/server/supabase";
 import { sendAdminInviteEmail, sendMemberInviteEmail } from "@/lib/server/email/sender";
 import { logActivity } from "@/lib/server/authHelpers";
+import { checkMemberQuota } from "@/lib/server/quotaHelpers";
 import { z } from "zod";
 
 // Validation schema for invite creation
@@ -122,6 +123,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "An invite for this email is already pending" },
         { status: 409 }
+      );
+    }
+
+    // Check member quota before creating invite
+    const quotaCheck = await checkMemberQuota(currentUser.organization_id);
+    if (!quotaCheck.allowed) {
+      return NextResponse.json(
+        { 
+          error: quotaCheck.error,
+          quotaInfo: {
+            currentUsage: quotaCheck.currentUsage,
+            limits: quotaCheck.limits,
+          },
+        },
+        { status: 403 }
       );
     }
 
