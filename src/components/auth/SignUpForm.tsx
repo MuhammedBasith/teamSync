@@ -313,7 +313,7 @@ export default function SignUpForm() {
                 <button
                   type="submit"
                   disabled={loading || loadingInvite}
-                  className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-[#37322F] hover:bg-[#49423D] disabled:opacity-50 disabled:cursor-not-allowed shadow-[0px_0px_0px_2.5px_rgba(255,255,255,0.08)_inset]"
                 >
                   {loading ? "Creating account..." : "Sign Up"}
                 </button>
