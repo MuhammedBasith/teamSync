@@ -1,18 +1,22 @@
 // Frontend API functions for activity log
-// These functions will be used with Tanstack Query
+// These functions are now handled in hooks/useActivity.ts with TanStack Query
 
-import { apiClient } from "@/lib/clients/apiClient";
+import { ActivityLogFilter } from "@/types/activity";
 
-export async function getActivityLog(params?: {
-  startDate?: string;
-  endDate?: string;
-}) {
-  const queryParams = new URLSearchParams(params as Record<string, string>);
-  return apiClient(`/activity?${queryParams.toString()}`, { method: "GET" });
-}
+/**
+ * Export activity logs
+ * This is a re-export from the hook for convenience
+ */
+export async function exportActivityLog(
+  format: "csv" | "json",
+  filters?: ActivityLogFilter
+) {
+  const params = new URLSearchParams({ format });
 
-export async function exportActivityLog(format: "csv" | "json") {
-  // This will trigger a download
-  window.open(`/api/activity/export?format=${format}`, "_blank");
+  if (filters?.startDate) params.append("startDate", filters.startDate);
+  if (filters?.endDate) params.append("endDate", filters.endDate);
+  if (filters?.actionType) params.append("actionType", filters.actionType);
+
+  window.open(`/api/activity/export?${params.toString()}`, "_blank");
 }
 
