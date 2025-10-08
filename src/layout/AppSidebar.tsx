@@ -16,8 +16,8 @@ const AppSidebar: React.FC = () => {
   const sidebarLinks = getSidebarLinks(role);
 
   const isActive = (path: string) => {
-    if (path === "/") {
-      return pathname === "/";
+    if (path === "/dashboard") {
+      return pathname === "/dashboard";
     }
     return pathname.startsWith(path);
   };
@@ -43,7 +43,7 @@ const AppSidebar: React.FC = () => {
           !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
         }`}
       >
-        <Link href="/" className="flex items-center gap-3">
+        <Link href="/dashboard" className="flex items-center gap-3">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
               <Image
