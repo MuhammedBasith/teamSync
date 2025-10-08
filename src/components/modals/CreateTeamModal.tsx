@@ -112,7 +112,7 @@ export default function CreateTeamModal({
               <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                 {isOwner
                   ? "Create a team and assign an admin to manage it"
-                  : "Create a team - you'll be assigned as the manager"}
+                  : "Create a team - you&apos;ll be assigned as the manager"}
               </p>
             </div>
             <button
@@ -201,7 +201,7 @@ export default function CreateTeamModal({
                   </>
                 ) : (
                   <>
-                    <strong>Note:</strong> You'll be assigned as the manager of
+                    <strong>Note:</strong> You&apos;ll be assigned as the manager of
                     this team and can invite members to join.
                   </>
                 )}
