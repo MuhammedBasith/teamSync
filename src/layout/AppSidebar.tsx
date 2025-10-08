@@ -54,7 +54,7 @@ const AppSidebar: React.FC = () => {
                 className="h-10 w-auto"
                 priority
               />
-              <span className="text-xl font-bold text-gray-900 dark:text-white">
+              <span className="text-2xl font-bold text-gray-900 dark:text-white font-serif">
                 TeamSync
               </span>
             </>
