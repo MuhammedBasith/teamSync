@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
 
     const supabase = createSupabaseAdmin();
 
-    // Fetch invite details
+    // Fetch invite details (only public information)
     const { data: invite, error } = await supabase
       .from("invites")
       .select(
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
         role,
         accepted,
         created_at,
-        organizations (
+        organizations!invites_organization_id_fkey (
           id,
           name,
           color_palette
