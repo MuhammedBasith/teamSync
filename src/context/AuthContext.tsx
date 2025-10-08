@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { User, Organization, Team } from "@/types";
+import type { Organization, Team } from "@/types";
 
 type AuthUser = {
   id: string;
