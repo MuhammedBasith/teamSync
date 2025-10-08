@@ -82,13 +82,7 @@ export async function validateInvite(inviteCode: string) {
 
 // Log activity
 export async function logActivity(
-  actorId: string,
-  organizationId: string,
-  actionType: string,
-  targetType: string,
-  targetId: string,
-  details?: Record<string, unknown>
-) {
+supabaseAdmin: unknown, actorId: string, organizationId: string, actionType: string, targetType: string, targetId: string, details?: Record<string, unknown>) {
   const supabase = createSupabaseAdmin();
 
   await supabase.from("activity_log").insert({
