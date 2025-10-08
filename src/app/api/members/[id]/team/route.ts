@@ -68,12 +68,13 @@ export async function PATCH(
     // Verify the member exists and belongs to this organization
     const { data: member, error: memberError } = await supabaseAdmin
       .from("users")
-      .select("id, display_name, team_id, role, teams (id, name)")
+      .select("id, display_name, team_id, role, teams!fk_team (id, name)")
       .eq("id", memberId)
       .eq("organization_id", currentUser.organization_id)
       .single();
 
     if (memberError || !member) {
+      console.error("Member lookup error:", memberError);
       return NextResponse.json(
         { error: "Member not found in your organization" },
         { status: 404 }
