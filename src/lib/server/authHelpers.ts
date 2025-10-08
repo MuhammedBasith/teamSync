@@ -32,7 +32,7 @@ export async function emailExists(email: string): Promise<boolean> {
   // Check in Supabase Auth
   const { data: authData } = await supabase.auth.admin.listUsers();
   const existsInAuth = authData?.users?.some(
-    (user) => user.email === email
+    (user: { email?: string }) => user.email === email
   );
 
   if (existsInAuth) return true;
