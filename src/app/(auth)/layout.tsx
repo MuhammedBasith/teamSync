@@ -38,7 +38,7 @@ export default function AuthLayout({
                       priority
                     />
                   </div>
-                  <span className="text-5xl font-bold text-white drop-shadow-2xl tracking-tight">
+                  <span className="text-5xl font-bold text-white drop-shadow-2xl tracking-tight font-serif">
                     TeamSync
                   </span>
                 </div>
