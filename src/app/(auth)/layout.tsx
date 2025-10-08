@@ -1,5 +1,6 @@
 import ThemeTogglerTwo from "@/components/common/ThemeTogglerTwo";
 import Link from "next/link";
+import Image from "next/image";
 import React from "react";
 
 export default function AuthLayout({
@@ -25,15 +26,24 @@ export default function AuthLayout({
           {/* Branding overlay - centered on image */}
           <div className="absolute inset-0 flex items-center justify-center z-10">
             <div className="flex flex-col items-center text-center px-6">
-              <Link href="/" className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
-                  <span className="text-brand-500 font-bold text-2xl">T</span>
+              <Link href="/" className="mb-6">
+                <div className="flex items-center gap-4 backdrop-blur-md bg-white/10 px-8 py-5 rounded-2xl border border-white/20 shadow-2xl hover:bg-white/15 transition-all duration-300">
+                  <div className="w-14 h-14 rounded-xl flex items-center justify-center shadow-lg">
+                    <Image
+                      src="/logo/logo.png"
+                      alt="TeamSync Logo"
+                      width={56}
+                      height={56}
+                      className="w-full h-full object-contain rounded-xl"
+                      priority
+                    />
+                  </div>
+                  <span className="text-5xl font-bold text-white drop-shadow-2xl tracking-tight">
+                    TeamSync
+                  </span>
                 </div>
-                <span className="text-3xl font-bold text-white drop-shadow-lg">
-                  TeamSync
-                </span>
               </Link>
-              <p className="text-lg text-white/90 drop-shadow-md max-w-sm">
+              <p className="text-xl text-white/95 drop-shadow-lg max-w-md font-medium mt-4">
                 Multi-organization team management platform
               </p>
             </div>
