@@ -99,7 +99,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Get organization name
-    const organizationName = currentUser.organizations?.name || "the organization";
+    const organizationName = Array.isArray(currentUser.organizations) 
+      ? currentUser.organizations[0]?.name 
+      : (currentUser.organizations as { name: string } | null)?.name || "the organization";
 
     // Get team name if teamId is provided
     let teamName: string | undefined;
