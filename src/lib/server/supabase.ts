@@ -37,6 +37,7 @@ export async function createSupabaseServer() {
           try {
             cookieStore.set({ name, value, ...options });
           } catch (error) {
+            console.error("Cookie setting error:", error);
             // Handle cookie setting errors
           }
         },
@@ -45,6 +46,7 @@ export async function createSupabaseServer() {
             cookieStore.set({ name, value: "", ...options });
           } catch (error) {
             // Handle cookie removal errors
+            console.error("Cookie removal error:", error);
           }
         },
       },
