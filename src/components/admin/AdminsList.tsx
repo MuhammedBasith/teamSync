@@ -255,19 +255,16 @@ export default function AdminsList() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-200 dark:border-gray-800">
-                <th className="text-left px-6 py-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                  Email
+                <th className="text-left px-6 py-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-2/5">
+                  Admin
                 </th>
-                <th className="text-left px-6 py-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                <th className="text-left px-6 py-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-1/6">
                   Status
                 </th>
-                <th className="text-left px-6 py-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                  Invited By
-                </th>
-                <th className="text-left px-6 py-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                <th className="text-left px-6 py-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-1/6">
                   Date
                 </th>
-                <th className="text-right px-6 py-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                <th className="text-right px-6 py-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-1/4">
                   Actions
                 </th>
               </tr>
@@ -284,47 +281,42 @@ export default function AdminsList() {
                         <img
                           src={admin.avatar_url}
                           alt={admin.display_name}
-                          className="w-8 h-8 rounded-full"
+                          className="w-10 h-10 rounded-full"
                         />
                       ) : (
-                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-500/20 flex items-center justify-center">
-                          <span className="text-sm font-semibold text-brand-600 dark:text-brand-400">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-500/20 flex items-center justify-center">
+                          <span className="text-base font-semibold text-brand-600 dark:text-brand-400">
                             {admin.display_name.charAt(0).toUpperCase()}
                           </span>
                         </div>
                       )}
-                      <div>
-                        <div className="text-sm font-medium text-gray-800 dark:text-white">
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-medium text-gray-800 dark:text-white truncate">
                           {admin.display_name}
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
                           {admin.email}
                         </div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     {admin.status === "active" ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-500/20 text-green-800 dark:text-green-400">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-500/20 text-green-800 dark:text-green-400">
                         Active
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-500/20 text-yellow-800 dark:text-yellow-400">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-500/20 text-yellow-800 dark:text-yellow-400">
                         Pending
                       </span>
                     )}
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {admin.status === "pending" ? "Pending" : "—"}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-600 dark:text-gray-400">
                       {formatDate(admin.created_at)}
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-6 py-4 text-right whitespace-nowrap">
                     <div className="flex items-center justify-end gap-2">
                       {/* Change Role Button (only for active admins) */}
                       {admin.status === "active" && (
