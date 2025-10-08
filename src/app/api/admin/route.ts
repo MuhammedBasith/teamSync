@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
     const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers();
     
     const adminsWithEmail = admins.map((admin) => {
-      const authUser = authUsers?.users.find((u) => u.id === admin.id);
+      const authUser = authUsers?.users.find((u: any) => u.id === admin.id);
       return {
         ...admin,
         email: authUser?.email || "Unknown",
