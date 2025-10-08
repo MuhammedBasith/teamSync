@@ -51,7 +51,7 @@ TeamSync follows a server-side first architecture where all database operations 
 
 **Decision:** All database operations happen on the server through API routes. No client-side database access.
 
-**Reasoning:**
+**Benefits:**
 - Complete control over data access patterns
 - Better security through centralized permission checks
 - Easier to add complex business logic
@@ -63,140 +63,60 @@ TeamSync follows a server-side first architecture where all database operations 
 - Cannot use Supabase Realtime features directly from client
 - Slightly higher latency compared to direct client access
 
-**Implementation:**
-```typescript
-// API Route (server-side)
-export async function GET(request: NextRequest) {
-  const supabase = createSupabaseAdmin();
-  
-  // Get authenticated user
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  // Check permissions
-  if (!hasPermission(user, 'read:teams')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-  
-  // Fetch data
-  const teams = await supabase.from('teams').select();
-  return NextResponse.json(teams);
-}
-```
-
 ### 2. API-First Architecture
 
 **Decision:** Frontend components never directly import or use Supabase. All communication happens through API routes.
 
-**Reasoning:**
+**Benefits:**
 - Clear separation of concerns
 - Easier testing and mocking
 - Consistent error handling
 - Type-safe API contracts
-- Better caching strategies
-
-**Implementation:**
-```typescript
-// Frontend Component
-const { data: teams } = useQuery({
-  queryKey: ['teams'],
-  queryFn: async () => {
-    const response = await fetch('/api/teams');
-    return response.json();
-  }
-});
-```
+- Better caching strategies with React Query
 
 ### 3. Multi-Tenancy Through Organization Isolation
 
 **Decision:** Every table includes an `organization_id` column. All queries filter by the current user's organization.
 
-**Reasoning:**
+**Benefits:**
 - Complete data isolation between organizations
 - Simple to implement and understand
 - Easy to add new features with proper isolation
 - No risk of cross-organization data leaks
-
-**Implementation:**
-```typescript
-// Every query includes organization filter
-const teams = await supabase
-  .from('teams')
-  .select('*')
-  .eq('organization_id', user.organization_id);
-```
+- Every query automatically scoped to user's organization
 
 ### 4. Role-Based Access Control in Code
 
-**Decision:** Permission checks happen in API route code, not in database policies.
+**Decision:** Permission checks happen in API route code, not in database policies (no RLS).
 
-**Reasoning:**
+**Benefits:**
 - Easier to debug and test
 - More flexible for complex permission logic
 - Better error messages
 - Service role bypasses RLS anyway
-- Centralized permission logic
-
-**Implementation:**
-```typescript
-export async function DELETE(request: NextRequest) {
-  const user = await getCurrentUser();
-  
-  // Permission check in code
-  if (user.role !== 'owner' && user.role !== 'admin') {
-    return NextResponse.json(
-      { error: 'Only owners and admins can delete teams' },
-      { status: 403 }
-    );
-  }
-  
-  // Proceed with deletion
-}
-```
+- Centralized permission logic in TypeScript
 
 ### 5. Activity Logging as First-Class Feature
 
 **Decision:** All major actions automatically log to the activity_log table through a centralized logger.
 
-**Reasoning:**
+**Benefits:**
 - Provides audit trail for compliance
 - Helps with debugging and support
 - Users can track what happened in their organization
 - Centralized logging ensures consistency
-
-**Implementation:**
-```typescript
-// Centralized activity logger
-await logActivity({
-  actor_id: user.id,
-  organization_id: user.organization_id,
-  action_type: 'team_created',
-  target_type: 'team',
-  target_id: team.id,
-  details: { team_name: team.name }
-});
-```
+- Easy to filter and export logs
 
 ### 6. Tier-Based Resource Quotas
 
 **Decision:** Organizations link to a tier that defines their resource limits. Validation happens before operations.
 
-**Reasoning:**
+**Benefits:**
 - Easy to implement different pricing tiers
 - Prevents abuse and runaway resource usage
 - Clear upgrade path for users
 - Simple to add new quota types
-
-**Implementation:**
-```typescript
-// Check quota before creating team
-const quota = await getQuotaInfo(organization_id);
-if (quota.teams.current >= quota.teams.max) {
-  return NextResponse.json(
-    { error: 'Team limit reached' },
-    { status: 400 }
-  );
-}
-```
+- Enforced at API level before database operations
 
 ---
 
@@ -271,176 +191,93 @@ const supabaseServer = await createSupabaseServer();
 
 ---
 
-## Row-Level Security (RLS) Overview
+## Security Approach: Why We Don't Use RLS
 
-While our architecture primarily relies on API-level permission checks, we implement basic RLS policies as a defense-in-depth measure.
+**We do NOT use Row-Level Security (RLS) policies in this project.**
 
-### Why RLS is Secondary in Our Architecture
+### Why RLS is Not Needed
 
-Our service role bypasses RLS policies, and all database operations go through API routes that check permissions in code. However, RLS provides an additional security layer if:
-- A service role key is compromised
-- A bug allows unauthorized queries
-- Direct database access is needed for maintenance
+Our architecture is designed around **Application-Level Security**, which makes RLS unnecessary:
 
-### Basic RLS Policies (Defense in Depth)
+**1. No Direct Client Access to Database**
+- The frontend never talks directly to Supabase
+- All database operations happen through our API routes
+- There's no way for a user to bypass our permission checks
 
-Even though we don't rely on them, here are recommended RLS policies:
+**2. Service Role Key Bypasses RLS Anyway**
+- We use `SUPABASE_SERVICE_ROLE_KEY` for all database operations
+- This key has full database access and ignores RLS policies
+- Even if we enabled RLS, it wouldn't affect our queries
 
-```sql
--- Users can only see their own organization's data
-CREATE POLICY "org_isolation_users"
-ON users FOR SELECT
-USING (organization_id = (
-  SELECT organization_id FROM users WHERE id = auth.uid()
-));
+**3. Permission Checks Happen in Code**
+- Every API route validates the user's identity
+- We check their role (owner/admin/member) before any operation
+- We filter all queries by the user's organization
+- This gives us complete control and flexibility
 
--- Teams are organization-scoped
-CREATE POLICY "org_isolation_teams"
-ON teams FOR SELECT
-USING (organization_id = (
-  SELECT organization_id FROM users WHERE id = auth.uid()
-));
+**4. Better Developer Experience**
+- Easier to debug - all logic is in one place (API routes)
+- More flexible - complex permission logic is simple to write
+- Clearer error messages - we control what users see
+- No need to learn PostgreSQL RLS syntax
 
--- Activity logs are organization-scoped
-CREATE POLICY "org_isolation_activity"
-ON activity_log FOR SELECT
-USING (organization_id = (
-  SELECT organization_id FROM users WHERE id = auth.uid()
-));
-```
+### Our Security Model
 
-**Important:** These policies won't affect our API routes since we use the service role. They exist as a safety net.
+Every API request follows this pattern:
 
-### Our Primary Security Approach
+**Step 1:** Authenticate the user (is this a valid logged-in user?)
 
-Instead of relying on RLS, we:
-1. Check user identity in API routes
-2. Verify user's organization
-3. Check role permissions in code
-4. Filter all queries by organization_id
-5. Log all sensitive actions
+**Step 2:** Fetch their profile (which organization? what role?)
 
-```typescript
-// Example permission check in API route
-export async function GET(request: NextRequest) {
-  const supabaseAdmin = createSupabaseAdmin();
-  
-  // 1. Get authenticated user
-  const { data: { user } } = await supabaseServer.auth.getUser();
-  if (!user) return unauthorized();
-  
-  // 2. Get user profile with org and role
-  const profile = await supabaseAdmin
-    .from('users')
-    .select('organization_id, role')
-    .eq('id', user.id)
-    .single();
-  
-  // 3. Check role permission
-  if (profile.role !== 'owner' && profile.role !== 'admin') {
-    return forbidden();
-  }
-  
-  // 4. Query with org filter
-  const data = await supabaseAdmin
-    .from('teams')
-    .select('*')
-    .eq('organization_id', profile.organization_id);
-  
-  return NextResponse.json(data);
-}
-```
+**Step 3:** Check permissions (can they perform this action?)
+
+**Step 4:** Execute query with organization filter (only their org's data)
+
+**Step 5:** Log the action (audit trail for compliance)
+
+All security decisions happen in our TypeScript code, not in database policies.
+
+### When Would We Need RLS?
+
+RLS becomes necessary when:
+- Frontend makes direct queries to Supabase (we don't do this)
+- Using Supabase Realtime from the client (we don't do this)
+- Mobile apps connecting directly to Supabase (not in our scope)
+- Using the anon key for database queries (we only use it for auth)
+
+Since none of these apply to our architecture, RLS would be redundant and add unnecessary complexity.
 
 ---
 
 ## Data Flow Patterns
 
-### 1. Query Pattern (Read Operations)
+### 1. Read Operations (Fetching Data)
 
-```
-Component → React Query → API Route → Validate User → Check Permission → Query DB → Return Data
-```
+**Flow:** Component → React Query → API Route → Validate → Check Permission → Query Database → Return Data
 
-Example:
-```typescript
-// Component
-const { data } = useQuery({
-  queryKey: ['teams'],
-  queryFn: () => fetch('/api/teams').then(r => r.json())
-});
+- User requests data from the frontend
+- API route authenticates and checks permissions
+- Query filtered by user's organization
+- Data returned to frontend through React Query
 
-// API Route
-export async function GET(request: NextRequest) {
-  const user = await validateUser(request);
-  if (!user) return unauthorized();
-  
-  const teams = await db.teams
-    .where('organization_id', user.organization_id)
-    .fetch();
-  
-  return NextResponse.json(teams);
-}
-```
+### 2. Write Operations (Creating/Updating Data)
 
-### 2. Mutation Pattern (Write Operations)
+**Flow:** Component → API Route → Validate → Check Permission → Check Quota → Update Database → Log Activity → Return Result
 
-```
-Component → React Query Mutation → API Route → Validate → Check Permission → Update DB → Log Activity → Return Result
-```
+- User submits form or action
+- API route validates input and permissions
+- Quota check ensures limits aren't exceeded
+- Database updated with organization filter
+- Action logged to activity trail
+- Success or error returned to frontend
 
-Example:
-```typescript
-// Component
-const mutation = useMutation({
-  mutationFn: (data) => fetch('/api/teams', {
-    method: 'POST',
-    body: JSON.stringify(data)
-  })
-});
+### 3. Real-Time Updates
 
-// API Route
-export async function POST(request: NextRequest) {
-  const user = await validateUser(request);
-  const data = await request.json();
-  
-  // Check quota
-  await checkQuota(user.organization_id, 'teams');
-  
-  // Create team
-  const team = await db.teams.create({
-    ...data,
-    organization_id: user.organization_id
-  });
-  
-  // Log activity
-  await logActivity({
-    actor_id: user.id,
-    action_type: 'team_created',
-    target_id: team.id
-  });
-  
-  return NextResponse.json(team);
-}
-```
-
-### 3. Real-Time Updates Pattern
-
-Since we don't use Supabase Realtime, we rely on:
-- React Query's automatic refetching
-- Optimistic updates
-- Manual invalidation after mutations
-
-```typescript
-const queryClient = useQueryClient();
-
-const mutation = useMutation({
-  mutationFn: createTeam,
-  onSuccess: () => {
-    // Invalidate and refetch
-    queryClient.invalidateQueries({ queryKey: ['teams'] });
-  }
-});
-```
+We use React Query's built-in features instead of Supabase Realtime:
+- Automatic refetching on window focus
+- Optimistic updates for instant UI feedback
+- Cache invalidation after mutations
+- Periodic background refetching
 
 ---
 
