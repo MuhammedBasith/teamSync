@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
 import { useRole } from "@/hooks/useRole";
@@ -45,18 +46,27 @@ const AppSidebar: React.FC = () => {
         <Link href="/" className="flex items-center gap-3">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
-              {/* Placeholder for logo - will add actual logo later */}
-              <div className="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">T</span>
-              </div>
+              <Image
+                src="/logo/logo.png"
+                alt="TeamSync Logo"
+                width={160}
+                height={10}
+                className="h-10 w-auto"
+                priority
+              />
               <span className="text-xl font-bold text-gray-900 dark:text-white">
                 TeamSync
               </span>
             </>
           ) : (
-            <div className="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">T</span>
-            </div>
+            <Image
+              src="/logo/logo.png"
+              alt="TeamSync"
+              width={40}
+              height={40}
+              className="h-10 w-10 object-contain"
+              priority
+            />
           )}
         </Link>
       </div>
