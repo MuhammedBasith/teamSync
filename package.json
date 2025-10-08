@@ -18,7 +18,6 @@
     "@types/flatpickr": "^3.0.2",
     "autoprefixer": "^10.4.20",
     "flatpickr": "^4.6.13",
-    "lightningcss": "^1.28.4",
     "lucide-react": "^0.545.0",
     "next": "15.2.3",
     "nodemailer": "^7.0.9",
@@ -26,7 +25,6 @@
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.5",
     "tailwind-merge": "^2.6.0",
-    "@tailwindcss/oxide": "^4.1.11",
     "zod": "^4.1.12"
   },
   "devDependencies": {
