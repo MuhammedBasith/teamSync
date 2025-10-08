@@ -13,9 +13,9 @@ import {
   UserCog,
   Plus,
   UserPlus,
-  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function DashboardPage() {
   const { data, isLoading, error } = useDashboard();
@@ -67,7 +67,13 @@ export default function DashboardPage() {
             </p>
           </div>
           <div className="hidden md:block">
-            <Sparkles className="w-16 h-16 text-brand-200 dark:text-brand-300 opacity-50" />
+            <Image
+              src="/logo/logo-transparent.png"
+              alt="TeamSync"
+              width={64}
+              height={64}
+              className="w-16 h-16 opacity-50"
+            />
           </div>
         </div>
       </div>
@@ -383,7 +389,13 @@ export default function DashboardPage() {
 
       {/* Coming Soon Section */}
       <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-8 text-center">
-        <Sparkles className="w-12 h-12 mx-auto text-brand-500 dark:text-brand-400 mb-4" />
+        <Image
+          src="/logo/logo-transparent.png"
+          alt="TeamSync"
+          width={60}
+          height={60}
+          className="w-16 h-16 mx-auto mb-4"
+        />
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
           More Features Coming Soon!
         </h3>
