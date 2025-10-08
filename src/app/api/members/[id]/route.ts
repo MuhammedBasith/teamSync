@@ -126,7 +126,7 @@ export async function PATCH(
     }
 
     // Prepare update data
-    let updateData: { role: string; team_id?: string | null } = { role: newRole };
+    const updateData: { role: string; team_id?: string | null } = { role: newRole };
 
     // Handle Member → Admin promotion
     if (oldRole === "member" && newRole === "admin") {
@@ -269,23 +269,23 @@ export async function PATCH(
 }
 
 // Placeholder for other methods
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  return NextResponse.json(
-    { message: "GET member details - Coming soon" },
-    { status: 501 }
-  );
-}
+// export async function GET(
+//   request: NextRequest,
+//   { params }: { params: Promise<{ id: string }> }
+// ) {
+//   return NextResponse.json(
+//     { message: "GET member details - Coming soon" },
+//     { status: 501 }
+//   );
+// }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  return NextResponse.json(
-    { message: "DELETE member - Use team-specific endpoint" },
-    { status: 501 }
-  );
-}
+// export async function DELETE(
+//   request: NextRequest,
+//   { params }: { params: Promise<{ id: string }> }
+// ) {
+//   return NextResponse.json(
+//     { message: "DELETE member - Use team-specific endpoint" },
+//     { status: 501 }
+//   );
+// }
 
