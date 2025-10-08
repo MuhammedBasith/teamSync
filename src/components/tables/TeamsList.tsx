@@ -26,7 +26,6 @@ export default function TeamsList() {
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
 
   const canCreateTeam = role === "owner" || role === "admin";
-  const isOwner = role === "owner";
 
   const handleViewTeam = (teamId: string) => {
     router.push(`/organization/teams/${teamId}`);
@@ -99,7 +98,7 @@ export default function TeamsList() {
               Teams
             </h2>
             <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-              Manage your organization's teams and members
+              Manage your organization&apos;s teams and members
             </p>
           </div>
           {canCreateTeam && (
