@@ -12,9 +12,9 @@ import EditTeamModal from "@/components/modals/EditTeamModal";
 import ConfirmDeleteTeamModal from "@/components/modals/ConfirmDeleteTeamModal";
 import Spinner from "@/components/loaders/Spinner";
 
-interface TeamDetailPageProps {
+type TeamDetailPageProps = {
   params: Promise<{ id: string }>;
-}
+};
 
 export default function TeamDetailPage({ params }: TeamDetailPageProps) {
   const resolvedParams = use(params);
