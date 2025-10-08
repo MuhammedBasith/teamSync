@@ -118,7 +118,8 @@ export async function GET(request: NextRequest) {
             .select("display_name")
             .eq("id", activity.target_id)
             .single();
-          targetName = targetUser?.display_name || "Unknown User";
+          // Fallback to details.user_name if user was deleted or not found
+          targetName = targetUser?.display_name || activity.details?.user_name || "Unknown User";
         } else if (activity.target_type === "team") {
           const { data: targetTeam } = await supabaseAdmin
             .from("teams")

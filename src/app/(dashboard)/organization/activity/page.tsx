@@ -251,12 +251,22 @@ export default function ActivityLogPage() {
 
   // Format date
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+    // Supabase returns timestamps without 'Z' suffix, but they are UTC
+    // Ensure we parse it as UTC by adding 'Z' if not present
+    const utcDateString = dateString.endsWith('Z') ? dateString : `${dateString}Z`;
+    const date = new Date(utcDateString);
     const now = new Date();
-    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+    
+    // Calculate difference in milliseconds, then convert to hours
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInHours = diffInMs / (1000 * 60 * 60);
 
-    if (diffInHours < 1) {
+    if (diffInHours < 0) {
+      // Handle edge case: timestamp in future (clock skew)
+      return "Just now";
+    } else if (diffInHours < 1) {
       const minutes = Math.floor(diffInHours * 60);
+      if (minutes <= 0) return "Just now";
       return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
     } else if (diffInHours < 24) {
       const hours = Math.floor(diffInHours);

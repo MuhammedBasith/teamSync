@@ -70,7 +70,31 @@ export default function RecentActivity({ activities }: RecentActivityProps) {
 
   const getActivityMessage = (activity: Activity) => {
     const actorName = activity.actorName || "Someone";
-    const targetName = activity.targetName || activity.details?.team_name || activity.details?.email || "Unknown";
+    
+    // Smart fallback for target name based on action type
+    const getTargetName = () => {
+      if (activity.targetName) return activity.targetName;
+      
+      // Fallback to details based on action type
+      if (activity.actionType === "team_created" || 
+          activity.actionType === "team_updated" || 
+          activity.actionType === "team_deleted") {
+        return activity.details?.team_name as string || "Unknown Team";
+      }
+      
+      if (activity.actionType === "user_invited") {
+        return activity.details?.email as string || "Unknown User";
+      }
+      
+      if (activity.actionType === "role_changed" || 
+          activity.actionType === "user_deleted") {
+        return activity.details?.user_name as string || "Unknown User";
+      }
+      
+      return "Unknown";
+    };
+    
+    const targetName = getTargetName();
 
     switch (activity.actionType) {
       case "user_invited":
@@ -93,12 +117,20 @@ export default function RecentActivity({ activities }: RecentActivityProps) {
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+    // Supabase returns timestamps without 'Z' suffix, but they are UTC
+    // Ensure we parse it as UTC by adding 'Z' if not present
+    const utcDateString = dateString.endsWith('Z') ? dateString : `${dateString}Z`;
+    const date = new Date(utcDateString);
     const now = new Date();
-    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+    
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInHours = diffInMs / (1000 * 60 * 60);
 
-    if (diffInHours < 1) {
+    if (diffInHours < 0) {
+      return "Just now";
+    } else if (diffInHours < 1) {
       const minutes = Math.floor(diffInHours * 60);
+      if (minutes <= 0) return "Just now";
       return `${minutes}m ago`;
     } else if (diffInHours < 24) {
       const hours = Math.floor(diffInHours);
