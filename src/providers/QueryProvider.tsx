@@ -1,7 +1,8 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useEffect } from "react";
+import { setGlobalQueryClient } from "@/lib/utils/queryClient";
 
 export function QueryProvider({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -15,6 +16,11 @@ export function QueryProvider({ children }: { children: ReactNode }) {
         },
       })
   );
+
+  // Set global reference on mount
+  useEffect(() => {
+    setGlobalQueryClient(queryClient);
+  }, [queryClient]);
 
   return (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
