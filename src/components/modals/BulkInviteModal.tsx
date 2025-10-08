@@ -335,7 +335,7 @@ export default function BulkInviteModal({
                         <li>• Only <strong>member</strong> role is allowed in bulk invites</li>
                         <li>• Maximum <strong>50 invites</strong> per batch</li>
                         <li>• Duplicate emails will be automatically skipped</li>
-                        <li>• Invites are subject to your tier's quota limits</li>
+                        <li>• Invites are subject to your tier&apos;s quota limits</li>
                       </ul>
                     </div>
                   </div>
