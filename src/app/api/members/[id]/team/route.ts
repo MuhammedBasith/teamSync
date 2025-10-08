@@ -113,7 +113,9 @@ export async function PATCH(
     }
 
     // Store old team name for activity log
-    const oldTeamName = member.teams?.name || "No Team";
+    const oldTeamName = Array.isArray(member.teams)
+      ? member.teams[0]?.name
+      : (member.teams as { name: string } | null)?.name || "No Team";
 
     // Update member's team
     const { error: updateError } = await supabaseAdmin
