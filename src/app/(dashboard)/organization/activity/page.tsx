@@ -134,6 +134,8 @@ export default function ActivityLogPage() {
         return "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10";
       case "organization_created":
         return "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10";
+      case "organization_updated":
+        return "text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-500/10";
       default:
         return "text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-500/10";
     }
@@ -210,6 +212,20 @@ export default function ActivityLogPage() {
           <>
             <span className="font-semibold">{actorName}</span> created the organization{" "}
             <span className="font-semibold">{targetName}</span>
+          </>
+        );
+      case "organization_updated":
+        const updatedFields = activity.details?.updated_fields || [];
+        const fieldsText = updatedFields.includes("name") && updatedFields.includes("color_palette")
+          ? "name and color palette"
+          : updatedFields.includes("name")
+          ? "name"
+          : updatedFields.includes("color_palette")
+          ? "color palette"
+          : "settings";
+        return (
+          <>
+            <span className="font-semibold">{actorName}</span> updated organization {fieldsText}
           </>
         );
       default:
