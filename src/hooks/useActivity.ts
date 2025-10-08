@@ -2,7 +2,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 import {
-  Activity,
   ActivityLogFilter,
   ActivityLogResponse,
 } from "@/types/activity";
