@@ -1,11 +1,12 @@
 import { Role } from "@/types";
 import {
-  GridIcon,
-  UserCircleIcon,
-  GroupIcon,
-  TaskIcon,
-  DocsIcon,
-} from "@/icons";
+  LayoutDashboard,
+  Users,
+  UsersRound,
+  FileClock,
+  Settings,
+  UserCog,
+} from "lucide-react";
 
 export type SidebarLink = {
   name: string;
@@ -15,26 +16,27 @@ export type SidebarLink = {
 
 export const SIDEBAR_LINKS: Record<Role, SidebarLink[]> = {
   owner: [
-    { name: "Dashboard", path: "/", icon: GridIcon },
-    { name: "Teams", path: "/teams", icon: GroupIcon },
-    { name: "Members", path: "/members", icon: UserCircleIcon },
-    { name: "Activity Log", path: "/organization/activity", icon: TaskIcon },
+    { name: "Dashboard", path: "/", icon: LayoutDashboard },
+    { name: "Admins", path: "/organization/admins", icon: UserCog },
+    { name: "Teams", path: "/teams", icon: UsersRound },
+    { name: "Members", path: "/members", icon: Users },
+    { name: "Activity Log", path: "/organization/activity", icon: FileClock },
     {
       name: "Organization Settings",
       path: "/organization/settings",
-      icon: DocsIcon,
+      icon: Settings,
     },
   ],
   admin: [
-    { name: "Dashboard", path: "/", icon: GridIcon },
-    { name: "Teams", path: "/teams", icon: GroupIcon },
-    { name: "Members", path: "/members", icon: UserCircleIcon },
-    { name: "Activity Log", path: "/organization/activity", icon: TaskIcon },
+    { name: "Dashboard", path: "/", icon: LayoutDashboard },
+    { name: "Teams", path: "/teams", icon: UsersRound },
+    { name: "Members", path: "/members", icon: Users },
+    { name: "Activity Log", path: "/organization/activity", icon: FileClock },
   ],
   member: [
-    { name: "Dashboard", path: "/", icon: GridIcon },
-    { name: "My Teams", path: "/teams", icon: GroupIcon },
-    { name: "Profile", path: "/profile", icon: UserCircleIcon },
+    { name: "Dashboard", path: "/", icon: LayoutDashboard },
+    { name: "My Teams", path: "/teams", icon: UsersRound },
+    { name: "Profile", path: "/profile", icon: Users },
   ],
 };
 
