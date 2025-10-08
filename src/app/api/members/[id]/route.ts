@@ -218,7 +218,6 @@ export async function PATCH(
 
     // Log activity
     await logActivity(
-      supabaseAdmin,
       currentUser.id,
       currentUser.organization_id,
       "role_changed",
