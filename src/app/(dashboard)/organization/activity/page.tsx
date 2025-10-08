@@ -45,7 +45,7 @@ export default function ActivityLogPage() {
   }, [user, authLoading, router]);
 
   // Fetch activities
-  const { data, isLoading, error, refetch } = useActivity(filters);
+  const { data, isLoading, error } = useActivity(filters);
 
   // Apply filters
   const handleApplyFilters = () => {
