@@ -400,7 +400,7 @@ export default function DashboardPage() {
           More Features Coming Soon!
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-          We're constantly improving TeamSync. Stay tuned for analytics,
+          We&apos;re constantly improving TeamSync. Stay tuned for analytics,
           advanced reporting, integrations, and much more.
         </p>
       </div>
