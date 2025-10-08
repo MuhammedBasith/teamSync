@@ -27,9 +27,15 @@ export async function POST(request: NextRequest) {
     const supabase = await createSupabaseServer();
 
     // Sign in with email and password
+    // rememberMe = false means session expires when browser closes
+    // rememberMe = true means session persists (default Supabase behavior)
     const { data, error } = await supabase.auth.signInWithPassword({
       email: validatedData.email,
       password: validatedData.password,
+      options: {
+        // If rememberMe is false, set session to expire when browser closes
+        persistSession: validatedData.rememberMe !== false,
+      },
     });
 
     if (error) {
