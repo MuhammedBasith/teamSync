@@ -90,7 +90,7 @@ export async function DELETE(
     }
 
     // Get the user's email from Supabase Auth before deletion
-    const { data: authUser, error: authUserError } =
+    const { data: authUser } =
       await supabaseAdmin.auth.admin.getUserById(adminUserId);
 
     const userEmail = authUser?.user?.email;
