@@ -72,17 +72,17 @@ export default function ChangeRoleModal({
 
     // Prepare mutation data
     const mutationData: {
-      userId: string;
+      memberId: string;
       role: Role;
-      team_id?: string | null;
+      teamId?: string | null;
     } = {
-      userId: user.id,
+      memberId: user.id,
       role: selectedRole,
     };
 
-    // Add team_id only when demoting to member
+    // Add teamId only when demoting to member
     if (selectedRole === "member" && selectedTeamId) {
-      mutationData.team_id = selectedTeamId;
+      mutationData.teamId = selectedTeamId;
     }
 
     updateRole(mutationData, {
