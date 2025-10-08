@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { createSupabaseAdmin } from "@/lib/server/supabase";
 import {
   ownerSignupSchema,
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             error: "Validation failed",
-            details: error.errors,
+            details: error.issues,
           },
           { status: 400 }
         );
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest) {
       // ==========================================
       // INVITED USER SIGNUP (Admin/Member)
       // ==========================================
-      const data = validatedData as typeof invitedSignupSchema._type;
+      const data = validatedData as z.infer<typeof invitedSignupSchema>;
 
       // Validate invite code
       const invite = await validateInvite(data.inviteCode);
@@ -157,7 +158,7 @@ export async function POST(request: NextRequest) {
       // ==========================================
       // OWNER SIGNUP (Creates new organization)
       // ==========================================
-      const data = validatedData as typeof ownerSignupSchema._type;
+      const data = validatedData as z.infer<typeof ownerSignupSchema>;
 
       // Get free tier ID
       const freeTierId = await getFreeTierId();
