@@ -15,7 +15,7 @@ import { ColorPalette } from "@/types/organization";
 export default function OrganizationSettingsPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
-  const { data: settings, isLoading, error, refetch } = useOrganizationSettings();
+  const { data: settings, isLoading, error } = useOrganizationSettings();
   const updateSettings = useUpdateOrganizationSettings();
 
   const [orgName, setOrgName] = useState("");
@@ -130,7 +130,7 @@ export default function OrganizationSettingsPage() {
         Organization Settings
       </h1>
           <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            Manage your organization's name, color palette, and view quota usage
+            Manage your organization&apos;s name, color palette, and view quota usage
           </p>
         </div>
       </div>
@@ -182,7 +182,7 @@ export default function OrganizationSettingsPage() {
               Color Palette
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-              Customize your organization's color scheme. Changes will apply across the dashboard.
+              Customize your organization&apos;s color scheme. Changes will apply across the dashboard.
             </p>
 
             <div className="space-y-6">
