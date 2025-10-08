@@ -59,18 +59,26 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protected routes - require authentication
+  // Public routes (no authentication required)
+  const isPublicRoute = request.nextUrl.pathname === "/";
+
+  // Protected routes - require authentication (dashboard and other features)
   const isProtectedRoute =
-    request.nextUrl.pathname === "/" ||
+    request.nextUrl.pathname.startsWith("/dashboard") ||
     request.nextUrl.pathname.startsWith("/teams") ||
     request.nextUrl.pathname.startsWith("/members") ||
     request.nextUrl.pathname.startsWith("/organization") ||
     request.nextUrl.pathname.startsWith("/profile");
 
-  // Auth routes - redirect to home if already logged in
+  // Auth routes - redirect to dashboard if already logged in
   const isAuthRoute =
     request.nextUrl.pathname.startsWith("/signin") ||
     request.nextUrl.pathname.startsWith("/signup");
+
+  // Allow public routes
+  if (isPublicRoute) {
+    return response;
+  }
 
   if (isProtectedRoute && !user) {
     // Redirect to signin if trying to access protected route without auth
@@ -80,8 +88,8 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isAuthRoute && user) {
-    // Redirect to home (dashboard) if already logged in
-    return NextResponse.redirect(new URL("/", request.url));
+    // Redirect to dashboard if already logged in
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   return response;
