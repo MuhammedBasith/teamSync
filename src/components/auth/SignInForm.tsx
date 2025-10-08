@@ -31,7 +31,7 @@ export default function SignInForm() {
 
     try {
       setLoading(true);
-      await signIn(formData.email, formData.password);
+      await signIn(formData.email, formData.password, isChecked);
       // Success - redirect handled by signIn function
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to sign in");
@@ -125,7 +125,7 @@ export default function SignInForm() {
                   </span>
                 </div>
                 <Link
-                  href="/reset-password"
+                  href="/forgot-password"
                   className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
                 >
                   Forgot password?
