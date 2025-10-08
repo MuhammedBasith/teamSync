@@ -31,7 +31,7 @@ Think of it as your organization's command center where owners and admins can ma
 - Next.js 15 with App Router
 - React 19
 - TypeScript
-- Tailwind CSS 4
+- Tailwind CSS
 - TanStack Query
 
 ### Backend
@@ -139,4 +139,4 @@ Built with Next.js, Supabase, Tailwind CSS, and Lucide icons.
 
 ---
 
-**Built for modern team management.**
+**Built with care by [Basith](https://basith.me/).**

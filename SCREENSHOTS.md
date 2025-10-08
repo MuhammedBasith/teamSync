@@ -6,9 +6,42 @@ This document provides visual examples of all major features in TeamSync, organi
 
 ## Table of Contents
 
-1. [Owner Features](#owner-features)
-2. [Admin Features](#admin-features)
-3. [Member Features](#member-features)
+1. [Email Notifications](#email-notifications)
+2. [Owner Features](#owner-features)
+3. [Admin Features](#admin-features)
+4. [Member Features](#member-features)
+
+---
+
+## Email Notifications
+
+### Role Change Email
+
+When an owner or admin changes a user's role, the user receives an email notification.
+
+<img src="./public/images/screenshots/role-change-email.png" alt="Role Change Email" width="800">
+
+**Features shown:**
+- Professional email template
+- Clear notification of role change
+- Organization branding
+- New role information
+- Call-to-action button to view dashboard
+
+---
+
+### Account Removed Email
+
+When a user is removed from an organization, they receive a notification email.
+
+<img src="./public/images/screenshots/account-removed-email.png" alt="Account Removed Email" width="800">
+
+**Features shown:**
+- Clear account removal notification
+- Professional email design
+- Organization information
+- Explanation of account status
+- Support contact information (if applicable)
 
 ---
 
@@ -329,6 +362,13 @@ New members receive invitation emails and can join the organization.
 - Session management
 - Password reset flow
 - Email verification
+
+**Email Notifications:**
+- Role change notifications
+- Account removal notifications
+- Invitation emails
+- Professional email templates
+- Organization branding in emails
 
 ---
 
