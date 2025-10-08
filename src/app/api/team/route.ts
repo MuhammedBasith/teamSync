@@ -226,7 +226,7 @@ export async function GET(request: NextRequest) {
     // Get user profile with role
     const { data: currentUser, error: userError } = await supabaseAdmin
       .from("users")
-      .select("id, role, organization_id")
+      .select("id, role, organization_id, team_id")
       .eq("id", user.id)
       .single();
 
@@ -237,12 +237,26 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get all teams in the organization
-    const { data: teams, error: teamsError } = await supabaseAdmin
+    // Get teams based on user role
+    let teamsQuery = supabaseAdmin
       .from("teams")
       .select("*")
-      .eq("organization_id", currentUser.organization_id)
-      .order("created_at", { ascending: false });
+      .eq("organization_id", currentUser.organization_id);
+
+    // Admins can only see teams they manage
+    if (currentUser.role === "admin") {
+      teamsQuery = teamsQuery.eq("manager_id", currentUser.id);
+    }
+    
+    // Members can only see their own team
+    if (currentUser.role === "member" && currentUser.team_id) {
+      teamsQuery = teamsQuery.eq("id", currentUser.team_id);
+    }
+
+    const { data: teams, error: teamsError } = await teamsQuery.order(
+      "created_at",
+      { ascending: false }
+    );
 
     if (teamsError) {
       console.error("Failed to fetch teams:", teamsError);
