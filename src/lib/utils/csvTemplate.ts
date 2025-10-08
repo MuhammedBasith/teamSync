@@ -107,7 +107,7 @@ export function parseCSV(content: string): {
     const emailSet = new Set<string>();
     const duplicates: string[] = [];
     
-    data.forEach((item, index) => {
+    data.forEach((item) => {
       if (emailSet.has(item.email)) {
         duplicates.push(`Duplicate email: ${item.email}`);
       } else {
