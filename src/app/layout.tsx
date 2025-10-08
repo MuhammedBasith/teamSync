@@ -24,6 +24,31 @@ const instrumentSerif = Instrument_Serif({
 export const metadata = {
   title: "TeamSync - Build organized teams. Manage them effortlessly.",
   description: "Multi-tenant team management platform. Create your workspace, invite your team, and stay in sync, all in one place.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://team-sync-ten.vercel.app'),
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: '/',
+    siteName: 'TeamSync',
+    title: 'TeamSync - Build organized teams. Manage them effortlessly.',
+    description: 'Multi-tenant team management platform. Create your workspace, invite your team, and stay in sync, all in one place.',
+    images: [
+      {
+        url: '/images/opengraph.png',
+        width: 1200,
+        height: 630,
+        alt: 'TeamSync - Team management made effortless',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'TeamSync - Build organized teams. Manage them effortlessly.',
+    description: 'Multi-tenant team management platform. Create your workspace, invite your team, and stay in sync, all in one place.',
+    images: ['/images/opengraph.png'],
+    creator: '@basith',
+    site: '@basith',
+  },
 };
 
 export default function RootLayout({
