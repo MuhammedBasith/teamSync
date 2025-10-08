@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             error: "Validation failed",
-            details: error.errors,
+            details: error.issues,
           },
           { status: 400 }
         );
@@ -32,10 +32,6 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: validatedData.email,
       password: validatedData.password,
-      options: {
-        // If rememberMe is false, set session to expire when browser closes
-        persistSession: validatedData.rememberMe !== false,
-      },
     });
 
     if (error) {
