@@ -2,12 +2,14 @@
  * Email template types and content
  */
 
-export type EmailTemplate = 
+export type EmailTemplate =
   | "admin_invite"
   | "member_invite"
   | "welcome"
   | "password_reset"
-  | "role_changed";
+  | "role_changed"
+  | "member_removed"
+  | "admin_removed";
 
 export interface EmailTemplateData {
   admin_invite: {
@@ -39,6 +41,17 @@ export interface EmailTemplateData {
     newRole: string;
     changedBy: string;
   };
+  member_removed: {
+    userName: string;
+    organizationName: string;
+    teamName: string;
+    removedBy: string;
+  };
+  admin_removed: {
+    userName: string;
+    organizationName: string;
+    removedBy: string;
+  };
 }
 
 /**
@@ -56,6 +69,10 @@ export function getEmailSubject(template: EmailTemplate, data: any): string {
       return `Reset your password`;
     case "role_changed":
       return `Your role has been updated in ${data.organizationName}`;
+    case "member_removed":
+      return `Your account has been removed from ${data.organizationName}`;
+    case "admin_removed":
+      return `Your admin access has been removed from ${data.organizationName}`;
     default:
       return "Notification from TeamSync";
   }
@@ -208,6 +225,68 @@ export function getEmailHtml<T extends EmailTemplate>(
       `;
     }
 
+    case "member_removed": {
+      const removeData = data as EmailTemplateData["member_removed"];
+      return `
+        <!DOCTYPE html>
+        <html>
+          <head>${baseStyles}</head>
+          <body>
+            <div class="container">
+              <div class="header" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);">
+                <h1>Account Removed</h1>
+              </div>
+              <div class="content">
+                <p>Hi ${removeData.userName},</p>
+                <p>Your account has been removed from <strong>${removeData.organizationName}</strong>.</p>
+                <p>You were removed from the <strong>${removeData.teamName}</strong> team, and your account access has been revoked.</p>
+                <p style="color: #6b7280; font-size: 14px; margin-top: 20px;">
+                  If you believe this was done in error, please contact your organization administrator.
+                </p>
+                <p style="color: #6b7280; font-size: 14px;">
+                  Thank you for being part of our team.
+                </p>
+              </div>
+              <div class="footer">
+                <p>© ${new Date().getFullYear()} TeamSync. All rights reserved.</p>
+              </div>
+            </div>
+          </body>
+        </html>
+      `;
+    }
+
+    case "admin_removed": {
+      const adminRemoveData = data as EmailTemplateData["admin_removed"];
+      return `
+        <!DOCTYPE html>
+        <html>
+          <head>${baseStyles}</head>
+          <body>
+            <div class="container">
+              <div class="header" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);">
+                <h1>Admin Access Removed</h1>
+              </div>
+              <div class="content">
+                <p>Hi ${adminRemoveData.userName},</p>
+                <p>Your admin access to <strong>${adminRemoveData.organizationName}</strong> has been removed by <strong>${adminRemoveData.removedBy}</strong>.</p>
+                <p>Your account and all associated privileges have been revoked.</p>
+                <p style="color: #6b7280; font-size: 14px; margin-top: 20px;">
+                  If you have any questions, please contact the organization owner.
+                </p>
+                <p style="color: #6b7280; font-size: 14px;">
+                  Thank you for your contributions.
+                </p>
+              </div>
+              <div class="footer">
+                <p>© ${new Date().getFullYear()} TeamSync. All rights reserved.</p>
+              </div>
+            </div>
+          </body>
+        </html>
+      `;
+    }
+
     default:
       return `
         <!DOCTYPE html>
@@ -262,6 +341,36 @@ Accept invitation: ${inviteData.inviteUrl}
 ${inviteData.expiresInDays ? `This invitation expires in ${inviteData.expiresInDays} days.` : ""}
 
 If you didn't expect this invitation, you can safely ignore this email.
+      `.trim();
+    }
+
+    case "member_removed": {
+      const removeData = data as EmailTemplateData["member_removed"];
+      return `
+Hi ${removeData.userName},
+
+Your account has been removed from ${removeData.organizationName}.
+
+You were removed from the ${removeData.teamName} team, and your account access has been revoked.
+
+If you believe this was done in error, please contact your organization administrator.
+
+Thank you for being part of our team.
+      `.trim();
+    }
+
+    case "admin_removed": {
+      const adminRemoveData = data as EmailTemplateData["admin_removed"];
+      return `
+Hi ${adminRemoveData.userName},
+
+Your admin access to ${adminRemoveData.organizationName} has been removed by ${adminRemoveData.removedBy}.
+
+Your account and all associated privileges have been revoked.
+
+If you have any questions, please contact the organization owner.
+
+Thank you for your contributions.
       `.trim();
     }
 
