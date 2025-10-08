@@ -17,7 +17,7 @@ export type SidebarLink = {
 
 export const SIDEBAR_LINKS: Record<Role, SidebarLink[]> = {
   owner: [
-    { name: "Dashboard", path: "/", icon: LayoutDashboard },
+    { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
     { name: "Admins", path: "/organization/admins", icon: UserCog },
     { name: "Teams", path: "/organization/teams", icon: UsersRound },
     { name: "Members", path: "/organization/members", icon: Users },
@@ -30,14 +30,14 @@ export const SIDEBAR_LINKS: Record<Role, SidebarLink[]> = {
     { name: "Profile", path: "/profile", icon: UserCircle },
   ],
   admin: [
-    { name: "Dashboard", path: "/", icon: LayoutDashboard },
+    { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
     { name: "Teams", path: "/organization/teams", icon: UsersRound },
     { name: "Members", path: "/organization/members", icon: Users },
     { name: "Activity Log", path: "/organization/activity", icon: FileClock },
     { name: "Profile", path: "/profile", icon: UserCircle },
   ],
   member: [
-    { name: "Dashboard", path: "/", icon: LayoutDashboard },
+    { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
     { name: "My Teams", path: "/organization/teams", icon: UsersRound },
     { name: "Profile", path: "/profile", icon: UserCircle },
   ],
