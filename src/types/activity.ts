@@ -5,7 +5,8 @@ export type ActivityType =
   | "team_deleted"
   | "role_changed"
   | "user_deleted"
-  | "organization_created";
+  | "organization_created"
+  | "organization_updated";
 
 export type ActivityTargetType = "user" | "team" | "organization";
 
