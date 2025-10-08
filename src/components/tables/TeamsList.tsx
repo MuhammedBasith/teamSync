@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Pencil, Trash2, UserPlus, Users } from "lucide-react";
+import { Pencil, Trash2, UserPlus, Users, Upload } from "lucide-react";
 import { useTeams } from "@/hooks/useTeams";
 import { useRole } from "@/hooks/useRole";
 import { Team } from "@/types/team";
@@ -10,6 +10,7 @@ import CreateTeamModal from "@/components/modals/CreateTeamModal";
 import EditTeamModal from "@/components/modals/EditTeamModal";
 import ConfirmDeleteTeamModal from "@/components/modals/ConfirmDeleteTeamModal";
 import InviteMemberModal from "@/components/modals/InviteMemberModal";
+import BulkInviteModal from "@/components/modals/BulkInviteModal";
 import Spinner from "@/components/loaders/Spinner";
 
 export default function TeamsList() {
@@ -21,6 +22,7 @@ export default function TeamsList() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [isBulkInviteModalOpen, setIsBulkInviteModalOpen] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
 
   const canCreateTeam = role === "owner" || role === "admin";
@@ -45,12 +47,18 @@ export default function TeamsList() {
     setIsInviteModalOpen(true);
   };
 
+  const handleBulkInvite = (team: Team) => {
+    setSelectedTeam(team);
+    setIsBulkInviteModalOpen(true);
+  };
+
   const handleModalSuccess = () => {
     refetch();
     setIsCreateModalOpen(false);
     setIsEditModalOpen(false);
     setIsDeleteModalOpen(false);
     setIsInviteModalOpen(false);
+    setIsBulkInviteModalOpen(false);
     setSelectedTeam(null);
   };
 
@@ -59,6 +67,7 @@ export default function TeamsList() {
     setIsEditModalOpen(false);
     setIsDeleteModalOpen(false);
     setIsInviteModalOpen(false);
+    setIsBulkInviteModalOpen(false);
     setSelectedTeam(null);
   };
 
@@ -176,16 +185,28 @@ export default function TeamsList() {
                 {/* Actions */}
                 <div className="space-y-2">
                   {canCreateTeam && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleInviteMember(team);
-                      }}
-                      className="w-full px-4 py-2 text-sm font-medium text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10 rounded-lg hover:bg-brand-100 dark:hover:bg-brand-500/20 transition-colors flex items-center justify-center gap-2"
-                    >
-                      <UserPlus className="w-4 h-4" />
-                      Invite Members
-                    </button>
+                    <>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleInviteMember(team);
+                        }}
+                        className="w-full px-4 py-2 text-sm font-medium text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10 rounded-lg hover:bg-brand-100 dark:hover:bg-brand-500/20 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <UserPlus className="w-4 h-4" />
+                        Invite Member
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleBulkInvite(team);
+                        }}
+                        className="w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <Upload className="w-4 h-4" />
+                        Bulk Invite
+                      </button>
+                    </>
                   )}
                 </div>
 
@@ -250,6 +271,12 @@ export default function TeamsList() {
             onSuccess={handleModalSuccess}
             teamId={selectedTeam.id}
             teamName={selectedTeam.name}
+          />
+          <BulkInviteModal
+            isOpen={isBulkInviteModalOpen}
+            onClose={handleModalClose}
+            onSuccess={handleModalSuccess}
+            teamId={selectedTeam.id}
           />
         </>
       )}
