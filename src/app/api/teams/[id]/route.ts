@@ -1,33 +1,37 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
-// Placeholder for individual team API routes
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await context.params;
+
   return NextResponse.json(
-    { message: `Team ${params.id} API - Coming soon` },
+    { message: `Team ${id} API - Coming soon` },
     { status: 501 }
   );
 }
 
 export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await context.params;
+
   return NextResponse.json(
-    { message: `Team ${params.id} API - Coming soon` },
+    { message: `Team ${id} API - Coming soon` },
     { status: 501 }
   );
 }
 
 export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await context.params;
+
   return NextResponse.json(
-    { message: `Team ${params.id} API - Coming soon` },
+    { message: `Team ${id} API - Coming soon` },
     { status: 501 }
   );
 }
-
