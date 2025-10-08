@@ -156,3 +156,45 @@ export async function sendRoleChangedEmail(
   });
 }
 
+/**
+ * Send member removed notification
+ */
+export async function sendMemberRemovedEmail(
+  to: string,
+  userName: string,
+  organizationName: string,
+  teamName: string,
+  removedBy: string
+) {
+  return sendEmail({
+    to,
+    template: "member_removed",
+    data: {
+      userName,
+      organizationName,
+      teamName,
+      removedBy,
+    },
+  });
+}
+
+/**
+ * Send admin removed notification
+ */
+export async function sendAdminRemovedEmail(
+  to: string,
+  userName: string,
+  organizationName: string,
+  removedBy: string
+) {
+  return sendEmail({
+    to,
+    template: "admin_removed",
+    data: {
+      userName,
+      organizationName,
+      removedBy,
+    },
+  });
+}
+
