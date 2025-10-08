@@ -275,6 +275,13 @@ export async function GET(request: NextRequest) {
           .select("id", { count: "exact", head: true })
           .eq("team_id", team.id);
 
+        // Get pending invites count
+        const { count: pendingCount } = await supabaseAdmin
+          .from("invites")
+          .select("id", { count: "exact", head: true })
+          .eq("team_id", team.id)
+          .eq("accepted", false);
+
         // Get manager details
         const { data: manager } = await supabaseAdmin
           .from("users")
@@ -292,6 +299,7 @@ export async function GET(request: NextRequest) {
         return {
           ...team,
           memberCount: count || 0,
+          pendingCount: pendingCount || 0,
           manager,
           creator,
         };
