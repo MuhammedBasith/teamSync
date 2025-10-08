@@ -1,89 +1,130 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, UserCog } from "lucide-react";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
+import ChangeRoleModal from "@/components/modals/ChangeRoleModal";
 
-interface Invite {
+interface Admin {
   id: string;
   email: string;
-  role: string;
-  accepted: boolean;
+  display_name: string;
+  avatar_url: string | null;
   created_at: string;
-  accepted_at: string | null;
-  invited_by_user: {
-    display_name: string;
-    avatar_url: string | null;
-  } | null;
-  user_id?: string; // For accepted invites
+  status: "active" | "pending";
+  inviteId?: string; // Only for pending invites
 }
 
 type DeleteAction = {
   type: "revoke" | "remove";
   id: string;
   email: string;
-  inviteId?: string;
+  displayName?: string;
 };
 
 export default function AdminsList() {
-  const [invites, setInvites] = useState<Invite[]>([]);
+  const [admins, setAdmins] = useState<Admin[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<"all" | "pending" | "accepted">("all");
+  const [filter, setFilter] = useState<"all" | "pending" | "active">("all");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteAction, setDeleteAction] = useState<DeleteAction | null>(null);
+  const [selectedUserForRole, setSelectedUserForRole] = useState<{
+    id: string;
+    display_name: string;
+    role: "admin" | "member";
+    email: string;
+  } | null>(null);
 
-  const fetchInvites = async () => {
+  const fetchAdmins = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const params = new URLSearchParams();
-      params.append("role", "admin");
-      if (filter !== "all") {
-        params.append("status", filter);
+      // Fetch active admins from users table
+      const adminsResponse = await fetch("/api/admin");
+      const adminsData = await adminsResponse.json();
+
+      if (!adminsResponse.ok) {
+        throw new Error(adminsData.error || "Failed to fetch admins");
       }
 
-      const response = await fetch(`/api/invite?${params.toString()}`);
-      const data = await response.json();
+      // Fetch pending invites
+      const invitesResponse = await fetch("/api/invite?role=admin&status=pending");
+      const invitesData = await invitesResponse.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch invites");
+      if (!invitesResponse.ok) {
+        throw new Error(invitesData.error || "Failed to fetch invites");
       }
 
-      setInvites(data.invites || []);
+      // Combine active admins and pending invites
+      const activeAdmins: Admin[] = (adminsData.admins || []).map((admin: { id: string; email: string; display_name: string; avatar_url: string | null; created_at: string }) => ({
+        id: admin.id,
+        email: admin.email,
+        display_name: admin.display_name,
+        avatar_url: admin.avatar_url,
+        created_at: admin.created_at,
+        status: "active" as const,
+      }));
+
+      const pendingInvites: Admin[] = (invitesData.invites || []).map((invite: { id: string; email: string; created_at: string }) => ({
+        id: invite.id,
+        email: invite.email,
+        display_name: invite.email.split("@")[0],
+        avatar_url: null,
+        created_at: invite.created_at,
+        status: "pending" as const,
+        inviteId: invite.id,
+      }));
+
+      const combined = [...activeAdmins, ...pendingInvites];
+      setAdmins(combined);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load invites");
+      setError(err instanceof Error ? err.message : "Failed to load admins");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchInvites();
+    fetchAdmins();
   }, [filter]);
 
-  const handleDeleteClick = (invite: Invite) => {
-    if (invite.accepted) {
-      // For accepted invites, we remove the admin user
-      if (!invite.user_id) {
-        setError("Cannot remove admin: user ID not found");
-        return;
-      }
+  const handleDeleteClick = (admin: Admin) => {
+    if (admin.status === "active") {
+      // Remove active admin
       setDeleteAction({
         type: "remove",
-        id: invite.user_id,
-        email: invite.email,
-        inviteId: invite.id,
+        id: admin.id,
+        email: admin.email,
+        displayName: admin.display_name,
       });
     } else {
-      // For pending invites, we revoke the invitation
+      // Revoke pending invite
       setDeleteAction({
         type: "revoke",
-        id: invite.id,
-        email: invite.email,
+        id: admin.inviteId!,
+        email: admin.email,
       });
     }
+  };
+
+  const handleChangeRoleClick = (admin: Admin) => {
+    if (admin.status !== "active") {
+      setError("Cannot change role: User hasn't accepted invite yet");
+      return;
+    }
+    setSelectedUserForRole({
+      id: admin.id,
+      display_name: admin.display_name,
+      role: "admin",
+      email: admin.email,
+    });
+  };
+
+  const handleRoleChangeSuccess = () => {
+    setSelectedUserForRole(null);
+    fetchAdmins(); // Refresh the list
   };
 
   const handleConfirmDelete = async () => {
@@ -117,12 +158,8 @@ export default function AdminsList() {
         throw new Error(errorMessage);
       }
 
-      // Remove from list
-      if (deleteAction.type === "remove" && deleteAction.inviteId) {
-        setInvites((prev) => prev.filter((inv) => inv.id !== deleteAction.inviteId));
-      } else {
-        setInvites((prev) => prev.filter((inv) => inv.id !== deleteAction.id));
-      }
+      // Refresh the admin list
+      fetchAdmins();
 
       // Close modal
       setDeleteAction(null);
@@ -164,7 +201,7 @@ export default function AdminsList() {
     <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03]">
       {/* Filter Tabs */}
       <div className="flex items-center gap-1 p-4 border-b border-gray-200 dark:border-gray-800">
-        {["all", "pending", "accepted"].map((tab) => (
+        {["all", "pending", "active"].map((tab) => (
           <button
             key={tab}
             onClick={() => setFilter(tab as typeof filter)}
@@ -175,17 +212,17 @@ export default function AdminsList() {
             }`}
           >
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            {tab === "pending" && invites.filter((i) => !i.accepted).length > 0 && (
+            {tab === "pending" && admins.filter((a) => a.status === "pending").length > 0 && (
               <span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold rounded-full bg-white/20">
-                {invites.filter((i) => !i.accepted).length}
+                {admins.filter((a) => a.status === "pending").length}
               </span>
             )}
           </button>
         ))}
       </div>
 
-      {/* Invites List */}
-      {invites.length === 0 ? (
+      {/* Admins List */}
+      {(filter === "all" ? admins : admins.filter(a => a.status === filter)).length === 0 ? (
         <div className="p-12 text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
             <svg
@@ -208,8 +245,8 @@ export default function AdminsList() {
           <p className="text-sm text-gray-600 dark:text-gray-400">
             {filter === "pending"
               ? "There are no pending admin invitations."
-              : filter === "accepted"
-              ? "No admins have accepted invitations yet."
+              : filter === "active"
+              ? "No active admins yet."
               : "Start by inviting your first admin."}
           </p>
         </div>
@@ -236,27 +273,40 @@ export default function AdminsList() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
-              {invites.map((invite) => (
+              {(filter === "all" ? admins : admins.filter(a => a.status === filter)).map((admin) => (
                 <tr
-                  key={invite.id}
+                  key={admin.id}
                   className="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors"
                 >
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-500/20 flex items-center justify-center">
-                        <span className="text-sm font-semibold text-brand-600 dark:text-brand-400">
-                          {invite.email.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <div className="text-sm font-medium text-gray-800 dark:text-white">
-                        {invite.email}
+                      {admin.avatar_url ? (
+                        <img
+                          src={admin.avatar_url}
+                          alt={admin.display_name}
+                          className="w-8 h-8 rounded-full"
+                        />
+                      ) : (
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-500/20 flex items-center justify-center">
+                          <span className="text-sm font-semibold text-brand-600 dark:text-brand-400">
+                            {admin.display_name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                      <div>
+                        <div className="text-sm font-medium text-gray-800 dark:text-white">
+                          {admin.display_name}
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {admin.email}
+                        </div>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    {invite.accepted ? (
+                    {admin.status === "active" ? (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-500/20 text-green-800 dark:text-green-400">
-                        Accepted
+                        Active
                       </span>
                     ) : (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-500/20 text-yellow-800 dark:text-yellow-400">
@@ -266,36 +316,45 @@ export default function AdminsList() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {invite.invited_by_user?.display_name || "Unknown"}
+                      {admin.status === "pending" ? "Pending" : "—"}
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {formatDate(invite.accepted ? invite.accepted_at! : invite.created_at)}
+                      {formatDate(admin.created_at)}
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button
-                      onClick={() => handleDeleteClick(invite)}
-                      disabled={Boolean(
-                        deletingId &&
-                          (deletingId === invite.id ||
-                            (invite.user_id && deletingId === invite.user_id))
+                    <div className="flex items-center justify-end gap-2">
+                      {/* Change Role Button (only for active admins) */}
+                      {admin.status === "active" && (
+                        <button
+                          onClick={() => handleChangeRoleClick(admin)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors"
+                          title="Change role"
+                        >
+                          <UserCog className="w-4 h-4" />
+                          Change Role
+                        </button>
                       )}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      title={invite.accepted ? "Remove admin" : "Revoke invitation"}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      {deletingId &&
-                      (deletingId === invite.id ||
-                        (invite.user_id && deletingId === invite.user_id))
-                        ? invite.accepted
-                          ? "Removing..."
-                          : "Revoking..."
-                        : invite.accepted
-                        ? "Remove"
-                        : "Revoke"}
-                    </button>
+                      
+                      {/* Delete/Revoke Button */}
+                      <button
+                        onClick={() => handleDeleteClick(admin)}
+                        disabled={deletingId === admin.id}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={admin.status === "active" ? "Remove admin" : "Revoke invitation"}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        {deletingId === admin.id
+                          ? admin.status === "active"
+                            ? "Removing..."
+                            : "Revoking..."
+                          : admin.status === "active"
+                          ? "Remove"
+                          : "Revoke"}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -317,12 +376,22 @@ export default function AdminsList() {
         }
         message={
           deleteAction?.type === "remove"
-            ? `Are you sure you want to remove ${deleteAction.email} as an admin? This will permanently delete their account and they will lose access immediately.`
+            ? `Are you sure you want to remove ${deleteAction.displayName || deleteAction.email} as an admin? This will permanently delete their account and they will lose access immediately.`
             : `Are you sure you want to revoke the invitation for ${deleteAction?.email}? They will no longer be able to use this invite link.`
         }
         confirmText={deleteAction?.type === "remove" ? "Remove Admin" : "Revoke Invite"}
         type="danger"
       />
+
+      {/* Change Role Modal */}
+      {selectedUserForRole && (
+        <ChangeRoleModal
+          isOpen={!!selectedUserForRole}
+          onClose={() => setSelectedUserForRole(null)}
+          onSuccess={handleRoleChangeSuccess}
+          user={selectedUserForRole}
+        />
+      )}
     </div>
   );
 }
