@@ -89,6 +89,23 @@ async function deleteTeam(teamId: string): Promise<void> {
 }
 
 /**
+ * Remove a member from a team
+ */
+async function removeMemberFromTeam(
+  teamId: string,
+  userId: string
+): Promise<void> {
+  const response = await fetch(`/api/team/${teamId}/members/${userId}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to remove member");
+  }
+}
+
+/**
  * Hook to fetch all teams
  */
 export function useTeams() {
@@ -147,6 +164,21 @@ export function useDeleteTeam() {
   return useMutation<void, Error, string>({
     mutationFn: deleteTeam,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["teams"] });
+    },
+  });
+}
+
+/**
+ * Hook to remove a member from a team
+ */
+export function useRemoveMember() {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, { teamId: string; userId: string }>({
+    mutationFn: ({ teamId, userId }) => removeMemberFromTeam(teamId, userId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["team", variables.teamId] });
       queryClient.invalidateQueries({ queryKey: ["teams"] });
     },
   });
