@@ -39,6 +39,7 @@ Think of it as your organization's command center where owners and admins can ma
 - **Comprehensive Audit Trail** - Track all major actions across the organization
 - **Filterable Activity Feed** - Filter by date range and action type
 - **Export Capabilities** - Export activity logs as CSV or JSON
+- **Paginated View** - Pagination is available
 - **Timeline View** - Beautiful timeline interface with color-coded activity types
 - **Action Types Tracked:**
   - User invitations and acceptances
