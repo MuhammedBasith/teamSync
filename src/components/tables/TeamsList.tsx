@@ -128,9 +128,16 @@ export default function TeamsList() {
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
                       {team.name}
                     </h3>
-                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                      {team.memberCount || 0} member{team.memberCount !== 1 ? "s" : ""}
-                    </p>
+                    <div className="mt-1 space-y-1">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {team.memberCount || 0} member{team.memberCount !== 1 ? "s" : ""}
+                      </p>
+                      {(team.pendingCount || 0) > 0 && (
+                        <p className="text-xs text-yellow-600 dark:text-yellow-400">
+                          {team.pendingCount} pending invite{team.pendingCount !== 1 ? "s" : ""}
+                        </p>
+                      )}
+                    </div>
                   </div>
                   {canCreateTeam && (
                     <div className="flex items-center gap-1">
