@@ -120,7 +120,7 @@ async function updateMemberRole(
   memberId: string,
   role: string,
   teamId?: string | null
-): Promise<{ success: boolean }> {
+): Promise<{ success: boolean; message: string }> {
   const response = await fetch(`/api/members/${memberId}`, {
     method: "PATCH",
     headers: {
@@ -204,7 +204,7 @@ export function useUpdateMemberRole() {
   const queryClient = useQueryClient();
 
   return useMutation<
-    { success: boolean },
+    { success: boolean; message: string },
     Error,
     { memberId: string; role: string; teamId?: string | null }
   >({
