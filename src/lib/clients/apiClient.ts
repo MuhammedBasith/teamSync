@@ -28,7 +28,17 @@ export async function apiClient<T>(
   const response = await fetch(`/api${endpoint}`, config);
 
   if (!response.ok) {
-    throw new Error(`API Error: ${response.statusText}`);
+    // Try to extract error message from response body
+    let errorMessage = response.statusText;
+    
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.error || errorData.message || response.statusText;
+    } catch (parseError) {
+      // If JSON parsing fails, use status text (already set above)
+    }
+    
+    throw new Error(errorMessage);
   }
 
   return response.json();
