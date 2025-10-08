@@ -71,13 +71,16 @@ Allow `organization_id` to be **nullable** initially. Once that user _creates_ t
 
 Teams within an organization.
 
-|Column|Type|Notes|
-|---|---|---|
-|`id`|`uuid` PK|auto-generated|
-|`organization_id`|`uuid` FK → organizations.id|team belongs to one org|
-|`name`|`text`|e.g. “Design”, “Backend”|
-|`created_by`|`uuid` FK → users.id|who created this team|
-|`created_at`|`timestamp`|default now()|
+
+| Column            | Type                         | Notes                                   |
+| ----------------- | ---------------------------- | --------------------------------------- |
+| `id`              | `uuid` PK                    | auto-generated                          |
+| `organization_id` | `uuid` FK → organizations.id | team belongs to one org                 |
+| `name`            | `text`                       | e.g. “Design”, “Backend”                |
+| `created_by`      | `uuid` FK → users.id         | who created this team                   |
+| `created_at`      | `timestamp`                  | default now()                           |
+| manager_id        | `uuid` FK → users.id         | admin responsible for managing the team |
+
 
 **Purpose:**  
 Represents smaller groups under an organization.
