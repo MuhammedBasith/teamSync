@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     } catch (error) {
       if (error instanceof z.ZodError) {
         return NextResponse.json(
-          { error: "Validation failed", details: error.errors },
+          { error: "Validation failed", details: error.issues },
           { status: 400 }
         );
       }
@@ -208,7 +208,7 @@ export async function POST(request: NextRequest) {
  * GET /api/team
  * List all teams in the current user's organization
  */
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const supabaseServer = await createSupabaseServer();
     const supabaseAdmin = createSupabaseAdmin();
