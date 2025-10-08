@@ -120,7 +120,7 @@ export default function UserDropdown() {
               My profile
             </DropdownItem>
           </li>
-          {(user.role === "owner" || user.role === "admin") && (
+          {(user.role === "owner") && (
             <li>
               <DropdownItem
                 onItemClick={closeDropdown}
