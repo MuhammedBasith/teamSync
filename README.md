@@ -2,7 +2,7 @@
 
 A multi-tenant team management platform for modern organizations. TeamSync helps companies manage their teams, members, roles, and organizational activity through a secure and intuitive interface.
 
-**Live Demo:** [https://team-sync-ten.vercel.app](https://team-sync-ten.vercel.app)
+**Live Demo:** [https://teamsync.basith.me/](https://teamsync.basith.me/)
 
 ---
 
@@ -44,13 +44,11 @@ Think of it as your organization's command center where owners and admins can ma
   - User invitations and acceptances
   - Team creation, updates, and deletions
   - Role changes (promotions and demotions)
-  - User removals
-  - Organization creation
+- Mail is sent along with this as well.
 
 ### Authentication & Security
 - **Supabase Authentication** - Secure authentication powered by Supabase Auth
-- **Row-Level Security** - Database-level security ensuring complete data isolation
-- **Session Management** - Optional "Remember Me" for extended sessions
+- **Row-Level Security** - This is not needed as we are interacting from the backend
 - **Password Reset** - Secure password recovery via email
 - **Protected Routes** - Middleware-protected dashboard routes
 
@@ -98,8 +96,7 @@ Basic users who can access their assigned teams:
 - **Next.js 15** - React framework with App Router
 - **React 19** - Latest React with concurrent features
 - **TypeScript** - Full type safety across the codebase
-- **Tailwind CSS 4** - Modern utility-first styling
-- **TanStack Query** - Powerful data fetching and state management
+- **Tailwind CSS** - Modern utility-first styling
 - **React Dropzone** - File upload handling for CSV imports
 - **Lucide React** - Beautiful icon library
 
@@ -134,10 +131,6 @@ Basic users who can access their assigned teams:
 
 2. **Install dependencies**
    ```bash
-   npm install
-   # or
-   yarn install
-   # or
    bun install
    ```
 
@@ -166,10 +159,6 @@ Basic users who can access their assigned teams:
 
 5. **Run the development server**
    ```bash
-   npm run dev
-   # or
-   yarn dev
-   # or
    bun dev
    ```
 
@@ -364,22 +353,7 @@ The application uses the following main tables:
 - **invites** - Pending user invitations
 - **activity_log** - Audit trail of all actions
 
-For detailed schema documentation, see `docs/` or the database schema rule in `.cursor/rules/`.
-
----
-
-## Documentation
-
-Comprehensive documentation is available in the `docs/` directory:
-
-- **SETUP.md** - Detailed setup instructions
-- **ACTIVITY_LOG_FEATURE.md** - Activity logging documentation
-- **TEAM_MANAGEMENT.md** - Team management guide
-- **MEMBERS_FEATURE.md** - Member management documentation
-- **BULK_INVITE_FEATURE.md** - CSV import guide
-- **ORGANIZATION_SETTINGS_FEATURE.md** - Settings documentation
-- **SECURITY_ARCHITECTURE.md** - Security implementation details
-- And many more...
+For detailed schema documentation, see the database schema rule in `.cursor/rules/`.
 
 ---
 
@@ -435,5 +409,5 @@ For questions or issues, please refer to the documentation in the `docs/` direct
 
 ---
 
-**Built with care for modern team management.**
+**Built with care by [Basith](https://basith.me/).**
 
