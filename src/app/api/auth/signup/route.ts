@@ -126,19 +126,8 @@ export async function POST(request: NextRequest) {
         })
         .eq("id", data.inviteCode);
 
-      // Log activity
-      await logActivity(
-        authData.user.id,
-        invite.organization_id,
-        "user_invited",
-        "user",
-        authData.user.id,
-        {
-          email: data.email,
-          role: invite.role,
-          invited_by: invite.invited_by,
-        }
-      );
+      // Note: Activity was already logged when the invite was sent (in /api/invite)
+      // No need to log again here to avoid duplicate entries
 
       return NextResponse.json(
         {
