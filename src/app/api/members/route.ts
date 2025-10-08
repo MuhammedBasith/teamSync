@@ -171,17 +171,18 @@ export async function GET(request: NextRequest) {
 
     // Format active members
     const activeMembers = (members || []).map((member) => {
-      const authUser = authUsers?.users.find((u) => u.id === member.id);
+      const authUser = authUsers?.users.find((u: { id?: string }) => u.id === member.id);
+      const teamData = Array.isArray(member.teams) ? member.teams[0] : member.teams;
       return {
         id: member.id,
         displayName: member.display_name,
         email: authUser?.email || "Unknown",
         avatarUrl: member.avatar_url,
         role: member.role,
-        team: member.teams
+        team: teamData
           ? {
-              id: member.teams.id,
-              name: member.teams.name,
+              id: teamData.id,
+              name: teamData.name,
             }
           : null,
         status: "active" as const,
@@ -190,22 +191,25 @@ export async function GET(request: NextRequest) {
     });
 
     // Format pending invites
-    const pendingMembers = (pendingInvites || []).map((invite) => ({
-      id: invite.id,
-      displayName: null,
-      email: invite.email,
-      avatarUrl: null,
-      role: invite.role,
-      team: invite.teams
-        ? {
-            id: invite.teams.id,
-            name: invite.teams.name,
-          }
-        : null,
-      status: "pending" as const,
-      createdAt: invite.created_at,
-      inviteId: invite.id,
-    }));
+    const pendingMembers = (pendingInvites || []).map((invite) => {
+      const teamData = Array.isArray(invite.teams) ? invite.teams[0] : invite.teams;
+      return {
+        id: invite.id,
+        displayName: null,
+        email: invite.email,
+        avatarUrl: null,
+        role: invite.role,
+        team: teamData
+          ? {
+              id: teamData.id,
+              name: teamData.name,
+            }
+          : null,
+        status: "pending" as const,
+        createdAt: invite.created_at,
+        inviteId: invite.id,
+      };
+    });
 
     // Combine and filter
     let allMembers = [...activeMembers, ...pendingMembers];
