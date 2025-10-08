@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Checkbox from "@/components/form/input/Checkbox";
 import Input from "@/components/form/input/InputField";
@@ -25,7 +25,6 @@ type InviteData = {
 
 export default function SignUpForm() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const { signUp } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
