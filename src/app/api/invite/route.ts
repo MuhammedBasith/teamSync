@@ -10,7 +10,7 @@ import { z } from "zod";
 const createInviteSchema = z.object({
   email: z.string().email("Invalid email address"),
   role: z.enum(["admin", "member"], {
-    errorMap: () => ({ message: "Role must be either 'admin' or 'member'" }),
+    message: "Role must be either 'admin' or 'member'",
   }),
   teamId: z.string().uuid().optional(),
 });
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
     // Check if user with this email already exists in auth
     const { data: existingAuthUser } = await supabaseAdmin.auth.admin.listUsers();
     const emailExists = existingAuthUser?.users.some(
-      (u) => u.email?.toLowerCase() === validatedData.email.toLowerCase()
+      (u: { email?: string }) => u.email?.toLowerCase() === validatedData.email.toLowerCase()
     );
 
     if (emailExists) {
@@ -164,8 +164,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Send invitation email
-    const organizationName =
-      currentUser.organizations?.name || "the organization";
+    const organizationName = Array.isArray(currentUser.organizations)
+      ? currentUser.organizations[0]?.name
+      : (currentUser.organizations as { name: string } | null)?.name || "the organization";
     const inviterName = currentUser.display_name || "A team member";
 
     let emailResult;
@@ -345,7 +346,7 @@ export async function GET(request: NextRequest) {
           // Get all auth users and find by email
           const { data: authData } = await supabaseAdmin.auth.admin.listUsers();
           const authUser = authData?.users.find(
-            (u) => u.email?.toLowerCase() === invite.email.toLowerCase()
+            (u: { email?: string; id?: string }) => u.email?.toLowerCase() === invite.email.toLowerCase()
           );
           
           if (authUser) {
