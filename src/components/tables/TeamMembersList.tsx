@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { UserMinus, Mail, Crown, Shield, User } from "lucide-react";
+import { UserMinus, Mail, Crown, Shield, User, UserCog } from "lucide-react";
 import { useRole } from "@/hooks/useRole";
 import { TeamMember } from "@/types/team";
 import ConfirmRemoveMemberModal from "@/components/modals/ConfirmRemoveMemberModal";
+import ChangeRoleModal from "@/components/modals/ChangeRoleModal";
 
 interface TeamMembersListProps {
   members: TeamMember[];
@@ -24,8 +25,16 @@ export default function TeamMembersList({
   const { role } = useRole();
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
+  const [selectedMemberForRole, setSelectedMemberForRole] = useState<{
+    id: string;
+    display_name: string;
+    role: "admin" | "member";
+    team_id?: string | null;
+    avatar_url?: string | null;
+  } | null>(null);
 
   const canRemoveMembers = role === "owner" || role === "admin";
+  const canChangeRoles = role === "owner"; // Only owners can change roles
 
   const handleRemoveMember = (member: TeamMember) => {
     setSelectedMember(member);
@@ -41,6 +50,21 @@ export default function TeamMembersList({
   const handleModalClose = () => {
     setIsRemoveModalOpen(false);
     setSelectedMember(null);
+  };
+
+  const handleChangeRoleClick = (member: TeamMember) => {
+    setSelectedMemberForRole({
+      id: member.id,
+      display_name: member.display_name,
+      role: member.role as "admin" | "member",
+      team_id: member.team_id,
+      avatar_url: member.avatar_url,
+    });
+  };
+
+  const handleRoleChangeSuccess = () => {
+    setSelectedMemberForRole(null);
+    onMemberRemoved(); // Refresh the team data
   };
 
   const getRoleIcon = (memberRole: string) => {
@@ -134,16 +158,30 @@ export default function TeamMembersList({
                     </div>
                   </div>
 
-                  {/* Remove Button */}
-                  {canRemove && (
-                    <button
-                      onClick={() => handleRemoveMember(member)}
-                      className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors flex-shrink-0"
-                      title="Remove member"
-                    >
-                      <UserMinus className="w-4 h-4 text-red-600 dark:text-red-400" />
-                    </button>
-                  )}
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    {/* Change Role Button (only for owners, only for members) */}
+                    {canChangeRoles && member.role === "member" && (
+                      <button
+                        onClick={() => handleChangeRoleClick(member)}
+                        className="p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors"
+                        title="Promote to admin"
+                      >
+                        <UserCog className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      </button>
+                    )}
+
+                    {/* Remove Button */}
+                    {canRemove && (
+                      <button
+                        onClick={() => handleRemoveMember(member)}
+                        className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                        title="Remove member"
+                      >
+                        <UserMinus className="w-4 h-4 text-red-600 dark:text-red-400" />
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Member Info */}
@@ -167,6 +205,16 @@ export default function TeamMembersList({
           member={selectedMember}
           teamId={teamId}
           teamName={teamName}
+        />
+      )}
+
+      {/* Change Role Modal */}
+      {selectedMemberForRole && (
+        <ChangeRoleModal
+          isOpen={!!selectedMemberForRole}
+          onClose={() => setSelectedMemberForRole(null)}
+          onSuccess={handleRoleChangeSuccess}
+          user={selectedMemberForRole}
         />
       )}
     </>
