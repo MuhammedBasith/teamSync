@@ -90,30 +90,36 @@ export async function GET(request: NextRequest) {
         },
         createdAt: organization.created_at,
         ownerId: organization.owner_id,
-        tier: {
-          id: organization.tiers.id,
-          name: organization.tiers.name,
-          maxMembers: organization.tiers.max_members,
-          maxTeams: organization.tiers.max_teams,
-          pricePerMonth: organization.tiers.price_per_month,
-        },
+        tier: (() => {
+          const tierData = Array.isArray(organization.tiers) ? organization.tiers[0] : organization.tiers;
+          return {
+            id: tierData.id,
+            name: tierData.name,
+            maxMembers: tierData.max_members,
+            maxTeams: tierData.max_teams,
+            pricePerMonth: tierData.price_per_month,
+          };
+        })(),
       },
-      usage: {
-        members: {
-          current: memberCount || 0,
-          max: organization.tiers.max_members,
-          percentage: Math.round(
-            ((memberCount || 0) / organization.tiers.max_members) * 100
-          ),
-        },
-        teams: {
-          current: teamCount || 0,
-          max: organization.tiers.max_teams,
-          percentage: Math.round(
-            ((teamCount || 0) / organization.tiers.max_teams) * 100
-          ),
-        },
-      },
+      usage: (() => {
+        const tierData = Array.isArray(organization.tiers) ? organization.tiers[0] : organization.tiers;
+        return {
+          members: {
+            current: memberCount || 0,
+            max: tierData.max_members,
+            percentage: Math.round(
+              ((memberCount || 0) / tierData.max_members) * 100
+            ),
+          },
+          teams: {
+            current: teamCount || 0,
+            max: tierData.max_teams,
+            percentage: Math.round(
+              ((teamCount || 0) / tierData.max_teams) * 100
+            ),
+          },
+        };
+      })(),
       permissions: {
         canEdit: currentUser.role === "owner",
         isOwner: currentUser.role === "owner",
