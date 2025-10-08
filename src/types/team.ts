@@ -6,6 +6,7 @@ export type Team = {
   manager_id: string;
   created_at: string;
   memberCount?: number;
+  pendingCount?: number;
   // Related data from joins
   manager?: {
     id: string;
