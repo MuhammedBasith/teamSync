@@ -136,6 +136,8 @@ export default function ActivityLogPage() {
         return "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10";
       case "organization_updated":
         return "text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-500/10";
+      case "member_moved":
+        return "text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/10";
       default:
         return "text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-500/10";
     }
@@ -228,6 +230,15 @@ export default function ActivityLogPage() {
             <span className="font-semibold">{actorName}</span> updated organization {fieldsText}
           </>
         );
+      case "member_moved":
+        return (
+          <>
+            <span className="font-semibold">{actorName}</span> moved{" "}
+            <span className="font-semibold">{activity.details?.member_name || targetName}</span>{" "}
+            from <span className="font-semibold">{activity.details?.from_team}</span> to{" "}
+            <span className="font-semibold">{activity.details?.to_team}</span>
+          </>
+        );
       default:
         return (
           <>
@@ -281,8 +292,8 @@ export default function ActivityLogPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Activity Log
-          </h1>
+        Activity Log
+      </h1>
           <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
             Track all actions and changes in your organization
           </p>
