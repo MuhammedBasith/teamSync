@@ -18,6 +18,7 @@ export type Team = {
     display_name: string;
     avatar_url: string | null;
   };
+  members?: TeamMember[];
 };
 
 export type TeamCreateInput = {
