@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Pencil, Trash2, UserPlus, Users } from "lucide-react";
 import { useTeams } from "@/hooks/useTeams";
 import { useRole } from "@/hooks/useRole";
@@ -12,6 +13,7 @@ import InviteMemberModal from "@/components/modals/InviteMemberModal";
 import Spinner from "@/components/loaders/Spinner";
 
 export default function TeamsList() {
+  const router = useRouter();
   const { data: teams, isLoading, error, refetch } = useTeams();
   const { role } = useRole();
 
@@ -23,6 +25,10 @@ export default function TeamsList() {
 
   const canCreateTeam = role === "owner" || role === "admin";
   const isOwner = role === "owner";
+
+  const handleViewTeam = (teamId: string) => {
+    router.push(`/organization/teams/${teamId}`);
+  };
 
   const handleEdit = (team: Team) => {
     setSelectedTeam(team);
@@ -104,12 +110,13 @@ export default function TeamsList() {
             {teams.map((team) => (
               <div
                 key={team.id}
-                className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 hover:shadow-lg transition-shadow"
+                className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 hover:shadow-lg transition-all cursor-pointer group"
+                onClick={() => handleViewTeam(team.id)}
               >
                 {/* Team Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
                       {team.name}
                     </h3>
                     <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
@@ -119,14 +126,20 @@ export default function TeamsList() {
                   {canCreateTeam && (
                     <div className="flex items-center gap-1">
                       <button
-                        onClick={() => handleEdit(team)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(team);
+                        }}
                         className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                         title="Edit team"
                       >
                         <Pencil className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                       </button>
                       <button
-                        onClick={() => handleDelete(team)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(team);
+                        }}
                         className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
                         title="Delete team"
                       >
@@ -164,7 +177,10 @@ export default function TeamsList() {
                 <div className="space-y-2">
                   {canCreateTeam && (
                     <button
-                      onClick={() => handleInviteMember(team)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleInviteMember(team);
+                      }}
                       className="w-full px-4 py-2 text-sm font-medium text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10 rounded-lg hover:bg-brand-100 dark:hover:bg-brand-500/20 transition-colors flex items-center justify-center gap-2"
                     >
                       <UserPlus className="w-4 h-4" />
