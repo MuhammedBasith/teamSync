@@ -164,7 +164,7 @@ export default function InviteMemberModal({
                 disabled={loading}
               />
               <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
-                They'll receive an email with instructions to join
+                They&apos;ll receive an email with instructions to join
               </p>
             </div>
 
