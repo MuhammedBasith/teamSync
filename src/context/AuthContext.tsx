@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import type { Organization, Team } from "@/types";
 
 type AuthUser = {
@@ -54,6 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   // Fetch current user on mount
   useEffect(() => {
@@ -84,6 +86,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       setError(null);
+
+      // Clear all cached queries before signing in
+      queryClient.clear();
 
       const response = await fetch("/api/auth/signin", {
         method: "POST",
@@ -150,6 +155,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         method: "POST",
       });
 
+      // Clear all cached queries
+      queryClient.clear();
+      
       setUser(null);
       router.push("/signin");
       router.refresh();
