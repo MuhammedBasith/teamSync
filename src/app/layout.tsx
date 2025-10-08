@@ -24,7 +24,7 @@ const instrumentSerif = Instrument_Serif({
 export const metadata = {
   title: "TeamSync - Build organized teams. Manage them effortlessly.",
   description: "Multi-tenant team management platform. Create your workspace, invite your team, and stay in sync, all in one place.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://team-sync-ten.vercel.app'),
+  metadataBase: new URL('https://teamsync.basith.me'),
   openGraph: {
     type: 'website',
     locale: 'en_US',
