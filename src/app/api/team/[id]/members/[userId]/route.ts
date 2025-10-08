@@ -31,7 +31,7 @@ export async function DELETE(
     // Get current user profile with role
     const { data: currentUser, error: userError } = await supabaseAdmin
       .from("users")
-      .select("id, role, organization_id")
+      .select("id, role, organization_id, display_name")
       .eq("id", user.id)
       .single();
 
@@ -98,7 +98,7 @@ export async function DELETE(
 
     // Get member's email from auth.users before deletion
     const { data: authData } = await supabaseAdmin.auth.admin.listUsers();
-    const authUser = authData?.users.find((u) => u.id === userId);
+    const authUser = authData?.users.find((u: { id?: string; email?: string }) => u.id === userId);
     const memberEmail = authUser?.email;
 
     // Get organization name for email
