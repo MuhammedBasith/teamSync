@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServer } from "@/lib/server/supabase";
 import { createSupabaseAdmin } from "@/lib/server/supabase";
+import { sendAdminRemovedEmail } from "@/lib/server/email/sender";
+import { logActivity } from "@/lib/server/authHelpers";
 
 /**
  * DELETE /api/admin/[id]
@@ -30,7 +32,7 @@ export async function DELETE(
     // Get current user profile with role
     const { data: currentUser, error: userError } = await supabaseAdmin
       .from("users")
-      .select("id, role, organization_id")
+      .select("id, role, organization_id, display_name")
       .eq("id", user.id)
       .single();
 
@@ -52,7 +54,7 @@ export async function DELETE(
     // Get the admin user to verify they exist and belong to same org
     const { data: adminUser, error: adminError } = await supabaseAdmin
       .from("users")
-      .select("id, role, organization_id")
+      .select("id, role, organization_id, display_name")
       .eq("id", adminUserId)
       .single();
 
@@ -142,10 +144,41 @@ export async function DELETE(
       // The auth user will remain but won't have a profile
     }
 
+    // Send notification email to the removed admin
+    if (userEmail && adminUser) {
+      const { data: org } = await supabaseAdmin
+        .from("organizations")
+        .select("name")
+        .eq("id", currentUser.organization_id)
+        .single();
+
+      await sendAdminRemovedEmail(
+        userEmail,
+        adminUser.display_name,
+        org?.name || "the organization",
+        currentUser.display_name
+      );
+    }
+
+    // Log activity
+    if (adminUser) {
+      await logActivity(
+        currentUser.id,
+        currentUser.organization_id,
+        "user_deleted",
+        "user",
+        adminUserId,
+        {
+          admin_name: adminUser.display_name,
+          reason: "admin_removed",
+        }
+      );
+    }
+
     return NextResponse.json(
       {
         success: true,
-        message: "Admin removed successfully",
+        message: "Admin account deleted successfully",
       },
       { status: 200 }
     );
