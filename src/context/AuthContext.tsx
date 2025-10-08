@@ -100,7 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       setUser(data.user);
-      router.push("/");
+      router.push("/dashboard");
       router.refresh();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to sign in";
