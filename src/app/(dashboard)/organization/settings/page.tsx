@@ -181,9 +181,21 @@ export default function OrganizationSettingsPage() {
             <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
               Color Palette
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
               Customize your organization&apos;s color scheme. Changes will apply across the dashboard.
             </p>
+            
+            {/* WIP Notice */}
+            <div className="mb-6 p-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-lg">
+              <p className="text-xs text-amber-700 dark:text-amber-300 flex items-center gap-2">
+                <span className="text-base">🎨</span>
+                <span>
+                  <strong>Preview Mode:</strong> Color customization is currently in development. 
+                  Feel free to experiment with colors, but they won&apos;t be reflected across the dashboard yet. 
+                  Coming in a future release!
+                </span>
+              </p>
+            </div>
 
             <div className="space-y-6">
               {/* Primary Color */}
