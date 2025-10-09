@@ -1,8 +1,16 @@
+<div align="center">
+
+<img src="./public/landing-page.png" alt="TeamSync Landing Page" width="700">
+
 # TeamSync
 
-A multi-tenant team management platform for modern organizations. TeamSync helps companies manage their teams, members, roles, and organizational activity through a secure and intuitive interface.
+### A multi-tenant team management platform for modern organizations
 
-**Live Demo:** [https://teamsync.basith.me/](https://teamsync.basith.me/)
+TeamSync helps companies manage their teams, members, roles, and organizational activity through a secure and intuitive interface.
+
+**[Live Demo](https://teamsync.basith.me/)**
+
+</div>
 
 ---
 
