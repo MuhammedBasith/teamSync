@@ -44,6 +44,9 @@ export default function MembersPage() {
   const [showMoveModal, setShowMoveModal] = useState(false);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [selectedTeamId, setSelectedTeamId] = useState("");
+  
+  // Success message state
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Redirect non-owners/non-admins
   useEffect(() => {
@@ -90,11 +93,13 @@ export default function MembersPage() {
   };
 
   const handleResendInvite = async (inviteId: string) => {
-    try {
-      await resendInvite.mutateAsync(inviteId);
-    } catch (error) {
-      console.error("Failed to resend invite:", error);
-    }
+    // Show friendly WIP message
+    setSuccessMessage("🚀 Resend invite feature coming soon! We're working on making this even better for you.");
+    
+    // Auto-hide after 4 seconds
+    setTimeout(() => {
+      setSuccessMessage(null);
+    }, 4000);
   };
 
   if (isLoading || authLoading) {
@@ -136,6 +141,15 @@ export default function MembersPage() {
           </p>
         </div>
       </div>
+
+      {/* Success Message */}
+      {successMessage && (
+        <div className="p-4 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 rounded-lg animate-in fade-in slide-in-from-top-2 duration-300">
+          <p className="text-sm text-blue-700 dark:text-blue-300">
+            {successMessage}
+          </p>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
